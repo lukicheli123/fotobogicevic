@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Porudžbine - Foto Studio Bogićević</title>
+    <link rel="stylesheet" href="styles/adminporudzbine.css">
+    <style>
+        .photo-thumbs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+
+            /* OGRANIČENJE visine — ali samo ako se premaši */
+            max-height: 260px;
+            overflow-y: auto;
+
+            /* Dodatno – za smanjenje lažnog skrola */
+            overflow-x: hidden;
+        }
+        .photo-thumbs.scrollable {
+            max-height: 260px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .photo-thumbs:has(img:nth-child(n+5)) {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .photo-thumbs::-webkit-scrollbar {
+            width: 6px;
+        }
+        .photo-thumbs::-webkit-scrollbar-thumb {
+            background-color: #ffa500;
+            border-radius: 10px;
+        }
+        .thumb-img {
+            width: 120px;
+            height: auto;
+            border-radius: 6px;
+            border: 2px solid #ffa500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .btn-download, .btn-confirm, .btn-cancel {
+            display: inline-block;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .btn-confirm { background-color: #28a745; }
+        .btn-cancel { background-color: #dc3545; }
+        .btn-download:hover { background-color: #0056b3; }
+        .btn-confirm:hover { background-color: #218838; }
+        .btn-cancel:hover { background-color: #c82333; }
+        .success-badge {
+            color: green;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease-in;
+        }
+        .dashboard-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .dashboard-item h3 {
+            margin-top: 0;
+        }
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .preview-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border: 4px solid white;
+            border-radius: 12px;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <audio id="notif-sound" src="/sounds/ding.mp3" preload="auto"></audio>
+</head>
+<body onload="fetchOrders()">
+
+<header>
+    <img src="logo/logo.png" class="logo" alt="Logo">
+    <nav>
+        <span id="loggedInAdmin" style="color: white; font-weight: bold;"></span>
+        <button  onclick="window.location.href='/login'" style="margin-left: 20px; background: #FFA500; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer;">Nazad</button>
+        </nav>
+    </div>
+</header>
+
+<main class="admin-main1">
+    <h2>Pregled porudžbina</h2>
+    <label for="statusFilter">Filter po statusu:</label>
+    <select id="statusFilter" onchange="fetchOrders()">
+        <option value="">Sve</option>
+        <option value="na čekanju">Na čekanju</option>
+        <option value="potvrđena">Potvrđene</option>
+        <option value="odbijena">Odbijene</option>
+    </select>
+    <div id="ordersContainer" class="admin-dashboard"></div>
+    <div id="pagination" style="text-align:center; margin-top: 20px;"></div>
+
+</main>
+
+<div class="preview-modal" id="previewModal" onclick="this.style.display='none'">
+    <img id="previewImage" src="" alt="Pregled slike" />
+</div>
+
+<script>
+    const socket = io();
+
+    socket.on('nova_porudzbina', (data) => {
+        prikaziNotifikaciju(data);
+        fetchOrders(); // 🔄 automatski osveži porudžbine
+    });
+
+    function prikaziNotifikaciju(data) {
+        new Audio('/sounds/ding.mp3').play(); // ✅ zvuk
+
+        const notifikacija = document.createElement('div');
+        notifikacija.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            z-index: 9999;
+            font-size: 16px;
+        ">
+            ✅ Nova porudžbina od <strong>${data.ime} ${data.prezime}</strong><br>
+            Broj: <strong>#${data.broj_porudzbine}</strong>
+        </div>
+    `;
+        document.body.appendChild(notifikacija);
+        setTimeout(() => notifikacija.remove(), 7000);
+    }
+    let trenutnaStrana = 1;
+    const limit = 10;
+    let ukupnoStrana = 1;
+
+    async function fetchOrders(strana = 1) {
+        trenutnaStrana = strana;
+        const filter = document.getElementById('statusFilter').value;
+        const url = new URL(`/api/admin/porudzbine`, window.location.origin);
+        url.searchParams.append('strana', strana);
+        url.searchParams.append('limit', limit);
+        if (filter) url.searchParams.append('status', filter);
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const orders = data.porudzbine;
+        ukupnoStrana = data.ukupnoStrana;
+
+        const container = document.getElementById('ordersContainer');
+        container.innerHTML = '';
+
+        if (!orders || !orders.length) {
+            container.innerHTML = '<p style="text-align:center;">Nema porudžbina trenutno.</p>';
+            return;
+        }
+
+        orders.forEach(order => {
+            const ukupnaCena = order.slike.reduce((acc, s) => acc + s.cena, 0);
+            const div = document.createElement('div');
+            div.className = 'dashboard-item';
+            div.innerHTML = `
+          <h3>Porudžbina #${order.broj_porudzbine}</h3>
+          <p><strong>${order.ime} ${order.prezime}</strong></p>
+          <p><strong>Email:</strong> ${order.email}</p>
+          <p><strong>Telefon:</strong> ${order.telefon}</p>
+          <p><strong>Adresa (napomena):</strong> ${order.napomena}</p>
+          <p><strong>Datum: :</strong> ${order.datum}</p>
+          <p><strong>Status:</strong> <span style="color:${order.status === 'potvrđena' ? 'green' : order.status === 'odbijena' ? 'red' : 'orange'}">${order.status}</span></p>
+
+          <div class="photo-thumbs">
+            ${order.slike.map(s => `
+              <div>
+                <img src="/uploads/narudzbineslike/${s.filename}" class="thumb-img" onclick="showPreview('/uploads/narudzbineslike/${s.filename}')" />
+                <p style="margin:0;font-size:14px;">${s.format}, ${s.kolicina} kom<br>${s.cena} RSD</p>
+              </div>`).join('')}
+          </div>
+          <p><strong>Ukupna cena:</strong> <span style="color:green">${ukupnaCena} RSD</span></p>
+          ${order.status === 'na čekanju' ? `
+            <button class="btn-confirm" onclick="confirmOrder(${order.broj_porudzbine})">Potvrdi</button>
+            <button class="btn-cancel" onclick="rejectOrder(${order.broj_porudzbine})">Odbaci</button>
+          ` : order.status === 'potvrđena' ? `
+            ${order.status_izrade === 'finalizovano' ? `
+    <p class="success-badge">✔️ Porudžbina je završena</p>
+` : `
+    <p class="success-badge">✔️ Porudžbina potvrđena</p>
+    <label for="faza-${order.broj_porudzbine}">Faza:</label>
+    <select id="faza-${order.broj_porudzbine}" onchange="azurirajFazu(${order.broj_porudzbine})">
+        <option value="u izradi" ${order.status_izrade === 'u izradi' ? 'selected' : ''}>U izradi</option>
+        <option value="štampa se" ${order.status_izrade === 'štampa se' ? 'selected' : ''}>Štampa se</option>
+        <option value="završeno" ${order.status_izrade === 'završeno' ? 'selected' : ''}>Završeno</option>
+    </select>
+    ${order.status_izrade === 'završeno' ? `
+        <button class="btn-confirm" onclick="potvrdiZavrsetak(${order.broj_porudzbine})">✅ Potvrdi završetak</button>
+    ` : ''}
+`}
+          ` : `
+            <p class="success-badge" style="color:red;">❌ Porudžbina odbijena</p>
+          `}
+          <a href="/api/admin/download/${order.broj_porudzbine}" class="btn-download">📥 Preuzmi slike (.zip)</a>
+          <a href="/api/admin/pdf/${order.broj_porudzbine}" class="btn-download">📄 Pregledaj kao PDF</a>
+          <button class="btn-cancel" onclick="obrisiPorudzbinu(${order.broj_porudzbine})">🗑️ Obriši porudžbinu</button>
+
+        `;
+            container.appendChild(div);
+        });
+
+        prikaziNavigaciju();
+    }
+    async function obrisiPorudzbinu(broj) {
+        if (!confirm(`Da li sigurno želiš da obrišeš porudžbinu #${broj}?\nBiće obrisani i svi fajlovi.`)) return;
+
+        try {
+            const res = await fetch(`/api/admin/porudzbine/${broj}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                alert("🗑️ Porudžbina obrisana.");
+                fetchOrders(trenutnaStrana);
+            } else {
+                alert("❌ Došlo je do greške prilikom brisanja.");
+            }
+        } catch (err) {
+            console.error("Greška:", err);
+            alert("❌ Nešto nije u redu sa brisanjem.");
+        }
+    }
+
+    function prikaziNavigaciju() {
+        const paginacija = document.getElementById('pagination');
+        paginacija.innerHTML = '';
+
+        for (let i = 1; i <= ukupnoStrana; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.style.margin = '0 4px';
+            btn.className = (i === trenutnaStrana) ? 'btn-confirm' : '';
+            btn.onclick = () => fetchOrders(i);
+            paginacija.appendChild(btn);
+        }
+    }
+
+    async function confirmOrder(broj) {
+        try {
+            console.log(`📦 Potvrđujem porudžbinu #${broj}...`);
+
+            const res = await fetch(`/api/admin/potvrdi/${broj}`, {
+                method: 'POST'
+            });
+
+            if (!res.ok) {
+                console.error("❌ Neuspešno potvrđivanje.");
+                alert("Greška pri potvrdi porudžbine.");
+                return;
+            }
+
+            console.log("✅ Porudžbina potvrđena. Osvežavam prikaz...");
+            await fetchOrders();           // 🔄 ponovo učitaj sve porudžbine
+
+
+        } catch (err) {
+            console.error("❌ Greška u confirmOrder:", err);
+            alert("Greška pri potvrdi porudžbine.");
+        }
+    }
+
+    async function azurirajFazu(brojPorudzbine) {
+        const faza = document.getElementById(`faza-${brojPorudzbine}`).value;
+
+        try {
+            const res = await fetch(`/api/admin/faza/${brojPorudzbine}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ faza })
+            });
+
+            if (res.ok) {
+                fetchOrders(); // ili refreshuj stranicu
+            } else {
+                alert('❌ Greška prilikom ažuriranja faze.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('❌ Greška prilikom ažuriranja faze.');
+        }
+    }
+
+    async function potvrdiZavrsetak(brojPorudzbine) {
+        try {
+            const res = await fetch(`/api/admin/finalizuj/${brojPorudzbine}`, {
+                method: 'PUT'
+            });
+            if (res.ok) {
+                fetchOrders(); // osvežava prikaz
+            } else {
+                alert('❌ Greška pri finalizaciji porudžbine.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('❌ Greška pri finalizaciji.');
+        }
+    }
+
+
+    async function rejectOrder(broj) {
+        try {
+            await fetch(`/api/admin/odbij/${broj}`, { method: 'PUT' });
+            fetchOrders(trenutnaStrana);
+        } catch (err) {
+            console.error(err);
+            alert("Greška pri odbijanju porudžbine.");
+        }
+    }
+
+    function showPreview(src) {
+        const modal = document.getElementById('previewModal');
+        const img = document.getElementById('previewImage');
+        img.src = src;
+        modal.style.display = 'flex';
+    }
+
+        // filteredOrders.forEach(order => {
+        //     const ukupnaCena = order.slike.reduce((acc, s) => acc + s.cena, 0);
+        //     const div = document.createElement('div');
+        //     div.className = 'dashboard-item';
+        //     div.innerHTML = `
+        //   <h3>Porudžbina #${order.broj_porudzbine}</h3>
+        //   <p><strong>${order.ime} ${order.prezime}</strong></p>
+        //   <p><strong>Email:</strong> ${order.email}</p>
+        //   <p><strong>Telefon:</strong> ${order.telefon}</p>
+        //   <p><strong>Status:</strong> <span style="color:${order.status === 'potvrđena' ? 'green' : order.status === 'odbijena' ? 'red' : 'orange'}">${order.status}</span></p>
+        //   <div class="photo-thumbs">
+        //     ${order.slike.map(s => `
+        //       <div>
+        //         <img src="/uploads/narudzbineslike/${s.filename}" class="thumb-img" onclick="showPreview('/uploads/narudzbineslike/${s.filename}')" />
+        //         <p style="margin:0;font-size:14px;">${s.format}, ${s.kolicina} kom<br>${s.cena} RSD</p>
+        //       </div>`).join('')}
+        //   </div>
+        //   <p><strong>Ukupna cena:</strong> <span style="color:green">${ukupnaCena} RSD</span></p>
+        //  ${order.status === 'na čekanju' ? `
+        //  <button class="btn-confirm" onclick="confirmOrder(${order.broj_porudzbine})">Potvrdi</button>
+        //   <button class="btn-cancel" onclick="rejectOrder(${order.broj_porudzbine})">Odbaci</button>
+        // ` : order.status === 'potvrđena' ? `
+        //   <p class="success-badge">✔️ Porudžbina potvrđena</p>
+        // ` : `
+        //   <p class="success-badge" style="color:red;">❌ Porudžbina odbijena</p>
+        // `}
+        //
+        //   <a href="/api/admin/download/${order.broj_porudzbine}" class="btn-download">📥 Preuzmi slike (.zip)</a>
+        //   <a href="/api/admin/pdf/${order.broj_porudzbine}" class="btn-download">📄 Pregledaj kao PDF</a>
+        // `;
+        //     container.appendChild(div);
+        // });
+
+
+
+
+
+
+    function showPreview(src) {
+        const modal = document.getElementById('previewModal');
+        const img = document.getElementById('previewImage');
+        img.src = src;
+        modal.style.display = 'flex';
+    }
+    function logout() {
+        fetch('/logout', { method: 'GET' })
+            .then(() => {
+                setTimeout(() => {
+                    window.location.href = '/adminlogin.html';
+                }, 300);
+            })
+            .catch(() => {
+                alert('Greška prilikom odjave');
+            });
+    }
+    async function prikaziUlogovanogAdmina() {
+        try {
+            const res = await fetch('/api/korisnik');
+            const data = await res.json();
+            if (data.username) {
+                document.getElementById('loggedInAdmin').innerText = "Ulogovani: " + data.username;
+
+            } else {
+                document.getElementById('loggedInAdmin').innerText = "Niste prijavljeni";
+
+            }
+        } catch {
+            document.getElementById('loggedInAdmin').innerText = "Greška pri dohvatanju korisnika.";
+        }
+    }
+
+    prikaziUlogovanogAdmina();
+    function sakrijLogin() {
+        document.getElementById("loginModal").style.display = "none";
+    }
+
+    async function proveriAdmina(onlySuperadmin = false) {
+        try {
+            const res = await fetch('/api/korisnik');
+            if (!res.ok) throw new Error('Nije ulogovan');
+
+            const korisnik = await res.json();
+
+            if (!korisnik || !korisnik.username) {
+                throw new Error('Nije ulogovan');
+            }
+
+            if (onlySuperadmin && korisnik.username !== 'lukicheli') {
+                throw new Error('Nema pristup');
+            }
+
+            // Ako je sve ok, vraćamo korisnika
+            return korisnik;
+
+        } catch (e) {
+            document.body.innerHTML = `<h2 style="text-align:center; color:#c00;">⛔ Pristup nije dozvoljen</h2>`;
+            return null;
+        }
+    }
+
+    window.onload = () => {
+        proveriAdmina();
+        fetchOrders();
+    };
+
+    async function loginAdmin() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        if (!username || !password) {
+            alert("Popuni sva polja");
+            return;
+        }
+
+        const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (res.ok) {
+            location.reload();
+        } else {
+            alert("Neuspešna prijava");
+        }
+    }
+
+    function toggleMenu() {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('show');
+    }
+    window.toggleMenu = function () {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('show');
+    }
+    async function proveriAdmina(onlySuperadmin = false) {
+        try {
+            const res = await fetch('/api/korisnik');
+            if (!res.ok) throw new Error('Nije ulogovan');
+
+            const korisnik = await res.json();
+
+            if (!korisnik || !korisnik.username) {
+                throw new Error('Nije ulogovan');
+            }
+
+            if (onlySuperadmin && korisnik.username !== 'lukicheli') {
+                throw new Error('Nema pristup');
+            }
+
+            // Ako je sve ok, vraćamo korisnika
+            return korisnik;
+
+        } catch (e) {
+            document.body.innerHTML = `<h2 style="text-align:center; color:#c00;">⛔ Pristup nije dozvoljen</h2>`;
+            return null;
+        }
+    }
+
+</script>
+<footer>
+<div class="footer-container">
+    <div class="footer-section">
+        <h3>Lokacija</h3>
+        <p>Ljubić Kej, Čačak 32000</p>
+    </div>
+    <div class="footer-section">
+        <h3>Kontakt</h3>
+        <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+    </div>
+    <div class="footer-section">
+        <h3>Pratite nas</h3>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook" ></a>
+            <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail" ></a>
+            <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram" ></a>
+        </div>
+    </div>
+</div>
+<div class="footer-copyright">
+    <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+</div>
+
+</footer>
+</body>
+</html>

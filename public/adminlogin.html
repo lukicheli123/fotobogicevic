@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="styles/template.css">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+    .login-form {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-form h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .login-form input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .login-form button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .login-form button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+<form class="login-form" method="POST" action="/api/admin/login">
+  <h2>Admin Prijava</h2>
+  <input type="text" name="username" placeholder="Korisničko ime" required>
+  <input type="password" name="password" placeholder="Lozinka" required>
+  <button type="submit">Prijavi se</button>
+</form>
+</body>
+<script>
+  async function loginAdmin(e) {
+  e.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  const res = await fetch('/api/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+
+  if (res.ok) {
+    window.location.href = '/admin_admini.html';
+  } else {
+    alert('Neuspešna prijava');
+  }
+}</script>
+</html>

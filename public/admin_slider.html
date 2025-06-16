@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Slider - Foto Studio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles/admin_slider.css">
+</head>
+<body>
+
+<header>
+  <img src="logo/logo.png" class="logo" alt="Logo">
+  <nav>
+    <span id="loggedInAdmin" style="color: white; font-weight: bold;"></span>
+    <button  onclick="window.location.href='login'" style="margin-left: 20px; background: #FFA500; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer;">Nazad</button>
+  </nav>
+
+</header>
+
+<main>
+  <h2><i class="fa-solid fa-upload"></i> Dodaj novu slider sliku</h2>
+  <form id="upload-form">
+    <div id="progress-container" style="width:100%; margin-top: 10px; display: none;">
+      <div style="height: 8px; background: #e0e0e0; border-radius: 4px;">
+        <div id="upload-progress" style="height: 8px; width: 0%; background-color: #28a745; border-radius: 4px;"></div>
+      </div>
+    </div>
+
+    <input type="file" name="image" accept="image/*" required>
+    <img id="image-preview" src="" alt="Preview" style="display:none; max-width:100%; margin-top:10px; border-radius:8px; box-shadow:0 0 8px rgba(0,0,0,0.1);">
+
+    <button type="submit"><i class="fa-solid fa-plus"></i> Dodaj</button>
+  </form>
+
+  <h2><i class="fa-solid fa-images"></i> Postojeće slider slike</h2>
+  <div class="slider-list" id="slider-list"></div>
+</main>
+<div id="orderModal" class="modal-overlay" style="display:none;">
+  <div class="modal-content">
+    <div class="checkmark">&#10003;</div>
+    <h2>Uspešno dodato!</h2>
+    <button onclick="closeModal()">Zatvori</button>
+  </div>
+</div>
+<!-- Modal za potvrdu brisanja -->
+<div id="deleteModal" class="modal-overlay" style="display:none;">
+  <div class="modal-content" style="position: relative;">
+    <div class="delete-mark">&#10005;</div> <!-- ovo je crveni X znak -->
+    <h2>Uspešno obrisano!</h2>
+    <button onclick="closeDeleteModal()">Zatvori</button>
+  </div>
+</div>
+
+
+<script>
+  async function loadSliderImages() {
+    const response = await fetch("/api/slider-images");
+    const images = await response.json();
+    const list = document.getElementById("slider-list");
+    list.innerHTML = "";
+    images.forEach(img => {
+      const div = document.createElement("div");
+      div.className = "slider-item";
+      div.innerHTML = `
+        <img src="${img.path}" alt="Slider Slika">
+        <button onclick="deleteSliderImage(${img.id})">
+          <i class="fa-solid fa-trash"></i> Obriši
+        </button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  async function deleteSliderImage(id) {
+
+      const formData = new URLSearchParams();
+      formData.append("id", id);
+      const response = await fetch("/delete-slider", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData
+      });
+      if (response.ok) {
+        document.getElementById("deleteModal").style.display = "flex";
+        loadSliderImages();
+      } else {
+        alert("Greška prilikom brisanja slike");
+      }
+
+  }
+  document.querySelector('input[name="image"]').addEventListener("change", function () {
+    const file = this.files[0];
+    const preview = document.getElementById("image-preview");
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        preview.src = e.target.result;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    } else {
+      preview.style.display = "none";
+      preview.src = "";
+    }
+  });
+
+  // document.getElementById("upload-form").addEventListener("submit", async e => {
+  //   e.preventDefault();
+  //   const formData = new FormData(e.target);
+  //   // const response = await fetch("/upload-slider", {
+  //   //   method: "POST",
+  //   //   body: formData
+  //   // });
+  //   if (response.ok) {
+  //     alert("Slika uspešno dodata!");
+  //     e.target.reset();
+  //     loadSliderImages();
+  //   } else {
+  //     alert("Greška prilikom dodavanja slike");
+  //   }
+  document.getElementById("upload-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/upload-slider");
+
+    xhr.upload.onprogress = function (e) {
+      if (e.lengthComputable) {
+        const percent = (e.loaded / e.total) * 100;
+        document.getElementById("progress-container").style.display = "block";
+        document.getElementById("upload-progress").style.width = percent + "%";
+      }
+    };
+
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        form.reset();
+        document.getElementById("upload-progress").style.width = "0%";
+        document.getElementById("progress-container").style.display = "none";
+        document.getElementById("image-preview").style.display = "none";
+        loadSliderImages();
+
+        // Prikaži modal
+        document.getElementById("orderModal").style.display = "flex";
+      } else {
+        alert("❌ Greška prilikom dodavanja slike");
+      }
+    };
+
+
+    xhr.send(formData);
+  });
+
+  loadSliderImages();
+  function closeModal() {
+    document.getElementById("orderModal").style.display = "none";
+    location.reload();
+  }
+  function closeDeleteModal() {
+    document.getElementById("deleteModal").style.display = "none";
+    loadSliderImages();
+  }
+  async function proveriAdmina(onlySuperadmin = false) {
+    try {
+      const res = await fetch('/api/korisnik');
+      if (!res.ok) throw new Error('Nije ulogovan');
+
+      const korisnik = await res.json();
+
+      if (!korisnik || !korisnik.username) {
+        throw new Error('Nije ulogovan');
+      }
+
+      if (onlySuperadmin && korisnik.username !== 'lukicheli') {
+        throw new Error('Nema pristup');
+      }
+
+      // Ako je sve ok, vraćamo korisnika
+      return korisnik;
+
+    } catch (e) {
+      document.body.innerHTML = `<h2 style="text-align:center; color:#c00;">⛔ Pristup nije dozvoljen</h2>`;
+      return null;
+    }
+  }
+
+  window.onload = () => {
+    proveriAdmina();
+    loadSliderImages();
+  };
+  async function prikaziUlogovanogAdmina() {
+    try {
+      const res = await fetch('/api/korisnik');
+      const data = await res.json();
+      if (data.username) {
+        document.getElementById('loggedInAdmin').innerText = "Ulogovani: " + data.username;
+
+      } else {
+        document.getElementById('loggedInAdmin').innerText = "Niste prijavljeni";
+
+      }
+    } catch {
+      document.getElementById('loggedInAdmin').innerText = "Greška pri dohvatanju korisnika.";
+    }
+  }
+
+  prikaziUlogovanogAdmina();
+  function sakrijLogin() {
+    document.getElementById("loginModal").style.display = "none";
+  }
+
+
+
+  async function loginAdmin() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!username || !password) {
+      alert("Popuni sva polja");
+      return;
+    }
+
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    if (res.ok) {
+      location.reload();
+    } else {
+      alert("Neuspešna prijava");
+    }
+  }
+
+  function toggleMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('show');
+  }
+  window.toggleMenu = function () {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('show');
+  }
+
+</script>
+<footer>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Lokacija</h3>
+      <p>Ljubić Kej, Čačak 32000</p>
+    </div>
+    <div class="footer-section">
+      <h3>Kontakt</h3>
+      <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+    </div>
+    <div class="footer-section">
+      <h3>Pratite nas</h3>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook" ></a>
+        <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail" ></a>
+        <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram" ></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+  </div>
+
+</footer>
+</body>
+</html>

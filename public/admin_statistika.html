@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Statistika - Foto Studio Bogićević</title>
+  <link rel="stylesheet" href="styles/template.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .dashboard-wrapper {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body onload="fetchStats()">
+
+<header>
+  <div class="header-content">
+    <img src="logo/logo.png" class="logo" alt="Logo">
+    <nav class="nav-desktop">
+      <a href="/" class="nav-link">Početna</a>
+      <a href="/admin_porudzbine.html" class="nav-link">Porudžbine</a>
+      <a href="/logout" class="nav-link">Izloguj se</a>
+    </nav>
+  </div>
+</header>
+
+<main class="dashboard-wrapper">
+  <h2>📊 Admin Statistika</h2>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <h3>Ukupno porudžbina</h3>
+      <p id="totalOrders">...</p>
+    </div>
+    <div class="stat-card">
+      <h3>Ukupna zarada</h3>
+      <p id="totalRevenue">...</p>
+    </div>
+    <div class="stat-card">
+      <h3>Najtraženiji format</h3>
+      <p id="topFormat">...</p>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <h3>Porudžbine po mesecima</h3>
+    <canvas id="ordersChart"></canvas>
+  </div>
+
+</main>
+
+<script>
+  async function fetchStats() {
+    const res = await fetch('/api/admin/statistika');
+    const data = await res.json();
+    document.getElementById('totalOrders').innerText = data.totalOrders;
+    document.getElementById('totalRevenue').innerText = data.totalRevenue + ' RSD';
+    document.getElementById('topFormat').innerText = data.topFormat || 'N/A';
+
+    new Chart(document.getElementById('ordersChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: data.months,
+        datasets: [{
+          label: 'Broj porudžbina',
+          data: data.counts,
+          backgroundColor: '#007bff'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

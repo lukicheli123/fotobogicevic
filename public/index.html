@@ -1,0 +1,856 @@
+
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O nama - Foto Bogićević</title>
+    <link rel="stylesheet" href="styles/onama.css">
+    <link rel="icon" href="logo/logo2.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500&display=swap" rel="stylesheet">
+    <meta property="og:image" content="logo/logo2.png">
+    <meta property="og:image:width" content="500"> <!-- Širina thumbnaila -->
+    <meta property="og:image:height" content="300"> <!-- Visina thumbnaila -->
+    <meta property="og:image:alt" content="Thumbnail Foto Bogićević">
+
+    <meta property="og:title" content="Foto Bogićević">
+    <meta property="og:description" content="Dobrodošli na zvaničan sajt Foto Bogićević">
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .slider-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 3 / 4;
+            margin: 2rem auto;
+            overflow: hidden;
+            border-radius: 15px;
+            background: #000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .slider-wrapper img {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            opacity: 0;
+            transform: scale(1.05);
+            transition: opacity 1.2s ease-in-out, transform 2.5s ease;
+            border-radius: 15px;
+        }
+
+
+        .slider-wrapper img.active {
+            opacity: 1;
+            z-index: 2;
+            transform: scale(1);
+        }
+
+        .slider-slogan {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 2rem;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            color: #444;
+            padding: 0.5rem 1rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+        }
+
+        .slider-slogan::before, .slider-slogan::after {
+            content: '“';
+            font-size: 3rem;
+            color: #ccc;
+            position: absolute;
+            top: -10px;
+        }
+
+        .slider-slogan::after {
+            content: '”';
+            right: 10px;
+            left: auto;
+        }
+
+        .slider-slogan::before {
+            left: 10px;
+        }
+
+
+        .faq-section {
+            padding: 1.5rem;
+            background: #fff;
+            margin: 2rem auto;
+            border-radius: 10px;
+            max-width: 700px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            font-family: 'Segoe UI', sans-serif;
+            user-select: none;
+        }
+
+        .faq-section h2 {
+            text-align: center;
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            color: #222;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #eee;
+            padding: 0.8rem 0;
+        }
+
+        .faq-item h3 {
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+
+        .faq-item:hover h3 {
+            color: #0077cc;
+        }
+
+        .faq-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+            color: #0077cc;
+            font-weight: bold;
+            margin-left: 0.8rem;
+            user-select: none;
+        }
+
+        .faq-answer {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: all 0.35s ease;
+
+        }
+
+        .faq-answer p {
+            margin: 0;
+            padding: 0.5rem 0 0 0;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 200px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .faq-item.open .faq-icon {
+            transform: rotate(45deg);
+        }
+        #recenzije-widget {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 50px auto;
+        }
+
+        .stars {
+            font-size: 36px;
+            color: gold;
+            text-shadow: 1px 1px 2px #00000033;
+            margin-bottom: 30px;
+            user-select: none;
+        }
+
+        .stars .star {
+            opacity: 0;
+            transform: scale(0.7);
+            animation: starFadeIn 0.4s forwards;
+        }
+
+        @keyframes starFadeIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .carousel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px 20px;
+            width: 100%;
+            text-align: center;
+            transition: all 0.4s ease-in-out;
+            user-select: none;
+        }
+
+        .carousel.fade-out { opacity: 0; }
+        .carousel.fade-in { opacity: 1; }
+
+        .review-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            margin-top: -60px;
+            margin-bottom:2px;
+            background: #fff;
+            user-select: none;
+        }
+
+        .name {
+            font-weight: bold;
+            font-size: 20px; margin-top: 5px;
+            color: #333;
+        }
+        .text { font-style: italic; color: #444; font-size: 17px; margin: 10px 0; }
+        .author { font-size: 15px; color: #666; }
+        .date { font-size: 14px; color: #999; margin-top: 10px; }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 25px;
+            user-select: none;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #bbb;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .dot.active {
+            background-color: gold;
+        }
+
+        #recenzije-widget a {
+            margin-top: 30px;
+            background-color: #ffc107;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        #recenzije-widget a:hover {
+            background-color: #e0a800;
+        }
+        .nav-link.active {
+            color: #fff;
+            border-bottom: 2px solid orange;
+        }
+
+    </style>
+</head>
+<body>
+<div id="preloader">
+    <img src="logo/logo2.png" alt="Logo" id="preloader-logo">
+</div>
+<header>
+    <div class="header-content">
+        <img src="logo/logo2.png" alt="Logo" class="logo">
+
+        <nav class="nav-desktop">
+            <a href="/" class="nav-link">Početna</a>
+            <a href="/galerija" class="nav-link">Galerija</a>
+            <a href="/narucivanjeslika" class="nav-link">Poruči</a>
+            <a href="/cenovnik" class="nav-link">Cenovnik</a>
+        </nav>
+
+        <!-- Hamburger je van nav -->
+        <div class="hamburger" onclick="toggleMenu()">☰</div>
+        <div id="mobileMenu" class="mobile-menu">
+            <a href="/">Početna</a>
+            <a href="/galerija">Galerija</a>
+            <a href="/narucivanjeslika">Poruči</a>
+            <a href="/cenovnik">Cenovnik</a>
+        </div>
+    </div>
+
+
+</header>
+
+
+
+
+<main class="about-main">
+    <!-- 📸 SLIDER -->
+    <div class="slider-container">
+        <div class="slider-wrapper" id="slider-wrapper"></div>
+    </div>
+    <div class="slider-slogan">
+        <q>Trenutak pretvaramo u priču</q>
+    </div>
+
+</main>
+
+    <!-- 👤 ČLAN TIMA -->
+<section class="about-us-modern">
+    <div class="about-modern-container">
+        <div class="about-modern-image">
+            <img src="logo/ogi.jpg" alt="Ognjen Bogićević - Fotograf">
+        </div>
+        <div class="about-modern-text">
+            <h2>Ognjen Bogićević</h2>
+            <h3>Glavni fotograf i osnivač</h3>
+            <p>
+                Ja sam Ognjen Bogićević — fotograf iz Čačka i osnivač stranice Foto Bogićević.
+                Fotografijom se bavim iz ljubavi prema trenutku. Moj cilj je da uhvatim iskrene emocije, prave priče i neponovljive momente, bilo da je reč o portretima, događajima ili snimcima iz vazduha.
+            </p>
+            <p>
+                Verujem da dobra fotografija ne nastaje samo kamerom, već i osećajem za pravi trenutak. Ako želiš slike koje će trajati i pričati tvoju priču — na pravom si mestu.
+            </p>
+            <p class="moto">"Vaše uspomene su naša misija."</p>
+        </div>
+    </div>
+</section>
+
+
+
+    <!-- 📷 USLUGE -->
+<section class="services-section">
+    <div class="services-header">
+        <h2>Naše usluge</h2>
+        <p style="font-size: 18px; color: #666; max-width: 700px; margin: 10px auto 40px;">
+            Bilo da slavite najlepše trenutke života ili želite profesionalnu prezentaciju iz vazduha — tu smo da zabeležimo svaki detalj sa strašću i kvalitetom.
+        </p>
+    </div>
+
+    <!-- Događaji -->
+    <div class="service-item alt">
+        <div class="service-content">
+            <div class="image-wrapper">
+                <img src="logo/dogadjaji.jpg" alt="Događaji" class="service-image">
+            </div>
+            <div class="service-text">
+                <h3>Fotografisanje događaja</h3>
+                <p>Uhvatite emocije, pokrete i atmosferu vašeg događaja kroz objektiv profesionalnog fotografa. Od kulturnih manifestacija do porodičnih proslava.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Venčanja -->
+    <div class="service-item">
+        <div class="service-content">
+            <div class="image-wrapper">
+                <img src="logo/vencanja.jpg" alt="Venčanja" class="service-image">
+            </div>
+            <div class="service-text">
+                <h3>Fotografisanje venčanja</h3>
+                <p>Ovekovečite najvažniji dan uz nežne, umetničke i bezvremene fotografije koje pričaju vašu ljubavnu priču.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rođendani -->
+    <div class="service-item alt">
+        <div class="service-content">
+            <div class="image-wrapper">
+                <img src="logo/rodjendani.jpg" alt="Rođendani" class="service-image">
+            </div>
+            <div class="service-text">
+                <h3>Fotografisanje rođendana</h3>
+                <p>Uhvatićemo svaki osmeh i svećicu — od dečjih rođendana do elegantnih proslava punoletstva.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Punoletstvo -->
+    <div class="service-item">
+        <div class="service-content">
+            <div class="image-wrapper">
+                <img src="logo/punoletstvo.jpg" alt="Punoletstvo" class="service-image">
+            </div>
+            <div class="service-text">
+                <h3>Fotografisanje punoletstva</h3>
+                <p>Svečani trenuci ulaska u zrelost zabeleženi na autentičan, elegantan i personalizovan način.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ✨ DRON VIDEO SEKCIJA -->
+<div class="drone-section">
+
+    <!-- Mobilni naslov izvan videa -->
+    <div class="drone-title-mobile mobile-only">
+        <h2 class="h2tekst">Snimanje dronom</h2>
+    </div>
+
+    <div class="drone-video-container">
+        <video class="drone-video" autoplay muted loop playsinline>
+            <source src="logo/dron.mp4" type="video/mp4" />
+        </video>
+
+        <!-- Desktop overlay -->
+        <div class="drone-overlay desktop-only">
+            <h2>Snimanje dronom</h2>
+            <p>Spektakularni kadrovi iz vazduha koji oduzimaju dah – savršeni za događaje, svadbe i promocije.</p>
+        </div>
+    </div>
+</div>
+
+        </section>
+
+<!-- ⭐ Recenzije -->
+<div id="recenzije-widget">
+    <div class="stars" id="review-stars"></div>
+
+    <div class="carousel" id="carousel">
+        <img id="review-img" class="review-img" src="" alt="slika para">
+        <div class="name" id="review-name"></div>
+        <div class="text" id="review-text"></div>
+        <div class="author" id="review-author"></div>
+        <div class="date" id="review-date"></div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <a href="add-review.html">Dodaj novu recenziju</a>
+</div>
+
+    <!-- ❓ FAQ -->
+<section class="faq-section">
+    <h2>Često postavljena pitanja</h2>
+
+    <div class="faq-item">
+        <h3 onclick="toggleFAQ(this)">
+            Kako mogu zakazati fotografisanje?
+            <span class="faq-icon">+</span>
+        </h3>
+        <div class="faq-answer">
+            <p>Možete nas kontaktirati putem telefona ili emaila, ili koristiti formu na sajtu.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <h3 onclick="toggleFAQ(this)">
+            Koliko unapred treba da rezervišem termin?
+            <span class="faq-icon">+</span>
+        </h3>
+        <div class="faq-answer">
+            <p>Preporučujemo da rezervišete termin barem dve nedelje unapred.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <h3 onclick="toggleFAQ(this)">
+            Da li radite i van Čačka?
+            <span class="faq-icon">+</span>
+        </h3>
+        <div class="faq-answer">
+            <p>Da, dostupni smo i za lokacije van Čačka po dogovoru.</p>
+        </div>
+    </div>
+</section>
+<!-- 📅 Forma za zakazivanje -->
+<section class="booking-section">
+    <div class="booking-wrapper">
+        <h2 class="booking-title">📸 Zakažite termin</h2>
+        <form id="zakazivanje-form" class="booking-form">
+            <div class="input-row">
+                <input type="text" name="ime" placeholder="Ime" required>
+                <input type="text" name="prezime" placeholder="Prezime" required>
+            </div>
+            <div class="input-row">
+                <input type="email" name="email" placeholder="Email adresa" required>
+                <input type="tel" name="telefon" placeholder="Broj telefona" required>
+            </div>
+            <div class="input-row">
+                <select name="usluga" required>
+                    <option value="">Odaberite uslugu</option>
+                    <option value="događaj">Događaj</option>
+                    <option value="venčanje">Venčanje</option>
+                    <option value="rođendan">Rođendan</option>
+                    <option value="punoletstvo">Punoletstvo</option>
+                    <option value="dron">Snimanje dronom</option>
+                </select>
+                <input type="date" name="datum" required>
+            </div>
+            <button type="submit">📅 Zakaži</button>
+            <div id="zakazivanje-poruka" class="form-message"></div>
+        </form>
+    </div>
+</section>
+
+
+</main>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>Lokacija</h3>
+            <p>Ljubić Kej, Čačak 32000</p>
+        </div>
+        <div class="footer-section">
+            <h3>Kontakt</h3>
+            <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+        </div>
+        <div class="footer-section">
+            <h3>Pratite nas</h3>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook"></a>
+                <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail"></a>
+                <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram"></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const currentPath = window.location.pathname;
+
+        // Rad sa desktop menijem
+        document.querySelectorAll(".nav-desktop .nav-link").forEach(link => {
+            if (link.getAttribute("href") === currentPath) {
+                link.classList.add("active");
+            } else {
+                link.classList.remove("active");
+            }
+        });
+
+        // Rad sa mobilnim menijem
+        document.querySelectorAll("#mobileMenu a").forEach(link => {
+            if (link.getAttribute("href") === currentPath) {
+                link.classList.add("active");
+            } else {
+                link.classList.remove("active");
+            }
+        });
+    });
+    (function () {
+        let reviews = [];
+        let index = 0;
+        let autoRotateInterval;
+
+        async function loadReviews() {
+            const res = await fetch('/api/reviews');
+            reviews = await res.json();
+            if (reviews.length > 1) {
+                createDots();
+                showReview(index);
+                startAutoRotate();
+            }
+            if(reviews.length==1)
+            {
+                createDots();
+                showReview(index);
+            }
+            if (reviews.length === 0) {
+                document.getElementById("carousel").innerHTML = "<p style='color:#555'>Još uvek nemamo recenzija. Budite prvi!</p>";
+                return;
+            }
+
+        }
+
+        function createDots() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            reviews.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if (i === index) dot.classList.add('active');
+                dot.addEventListener('click', () => {
+                    index = i;
+                    showReview(index);
+                    resetAutoRotate();
+                });
+                pagination.appendChild(dot);
+            });
+        }
+
+        function showReview(i) {
+            const carousel = document.getElementById('carousel');
+            carousel.classList.remove('fade-in');
+            carousel.classList.add('fade-out');
+
+            setTimeout(() => {
+                const review = reviews[i];
+                document.getElementById('review-img').src = review.image || '';
+                document.getElementById('review-name').textContent = review.name.toUpperCase();
+                document.getElementById('review-text').textContent = `„${review.text}“`;
+                document.getElementById('review-author').textContent = `— ${review.name} —`;
+
+                const isoDate = new Date(review.date);
+                const formattedDate = isoDate.toLocaleString('sr-RS', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+                document.getElementById('review-date').textContent = formattedDate;
+
+                const starsDiv = document.getElementById('review-stars');
+                starsDiv.innerHTML = '';
+                const rating = review.rating || 0;
+                for (let j = 0; j < 5; j++) {
+                    const star = document.createElement('span');
+                    star.textContent = j < rating ? '★' : '☆';
+                    star.classList.add('star');
+                    star.style.animationDelay = `${j * 0.1}s`;
+                    starsDiv.appendChild(star);
+                }
+
+                createDots();
+                carousel.classList.remove('fade-out');
+                carousel.classList.add('fade-in');
+            }, 200);
+        }
+
+        function startAutoRotate() {
+            stopAutoRotate();
+            autoRotateInterval = setInterval(() => {
+                if (!reviews.length) return;
+                index = (index + 1) % reviews.length;
+                showReview(index);
+            }, 6000);
+        }
+
+        function stopAutoRotate() {
+            clearInterval(autoRotateInterval);
+        }
+
+        function resetAutoRotate() {
+            startAutoRotate();
+        }
+
+        // Swipe podrška
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const carousel = document.getElementById('carousel');
+
+        carousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        carousel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (!reviews.length) return;
+            const delta = touchEndX - touchStartX;
+            if (Math.abs(delta) < 30) return;
+
+            index = delta < 0 ? (index + 1) % reviews.length : (index - 1 + reviews.length) % reviews.length;
+            showReview(index);
+            resetAutoRotate();
+        }
+
+        loadReviews();
+    })();
+
+    async function loadSliderImages() {
+        try {
+            const response = await fetch("/api/slider-images");
+            const images = await response.json();
+            const wrapper = document.getElementById("slider-wrapper");
+
+            images.forEach((img, index) => {
+                const imgElem = document.createElement("img");
+                imgElem.src = img.path;
+                imgElem.alt = "Slider Slika";
+                if (index === 0) imgElem.classList.add("active");
+
+                // 🚫 Zabrani čuvanje i interakciju
+                imgElem.oncontextmenu = () => false;
+                imgElem.draggable = false;
+                imgElem.addEventListener("touchstart", e => e.preventDefault(), { passive: false });
+
+                // Kad se slika učita, prilagodi object-fit
+                imgElem.onload = () => {
+                    const ratio = imgElem.naturalWidth / imgElem.naturalHeight;
+                    imgElem.onload = () => {
+                        const ratio = imgElem.naturalWidth / imgElem.naturalHeight;
+
+                        // Horizontalna → malo manji scale
+                        if (ratio > 1.2) {
+                            imgElem.dataset.scale = '0.97';
+                        }
+                        // Vertikalna → malo veći scale da popuni
+                        else if (ratio < 0.8) {
+                            imgElem.dataset.scale = '1.05';
+                        }
+                        // Srednje → normalno
+                        else {
+                            imgElem.dataset.scale = '1';
+                        }
+                    };
+
+                };
+
+                wrapper.appendChild(imgElem);
+            });
+
+            let index = 0;
+            const total = images.length;
+            const imgElements = wrapper.querySelectorAll("img");
+
+            let autoSlide = setInterval(nextSlide, 3000);
+
+            function nextSlide() {
+                imgElements[index].classList.remove("active");
+                index = (index + 1) % total;
+                imgElements[index].classList.add("active");
+            }
+
+            function prevSlide() {
+                imgElements[index].classList.remove("active");
+                index = (index - 1 + total) % total;
+                imgElements[index].classList.add("active");
+            }
+
+            // Swipe
+            let startX = 0;
+            let isMoving = false;
+
+            wrapper.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+                isMoving = true;
+                clearInterval(autoSlide);
+            });
+
+            wrapper.addEventListener('touchmove', e => {
+                if (!isMoving) return;
+                let currentX = e.touches[0].clientX;
+                let diff = currentX - startX;
+
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) prevSlide();
+                    else nextSlide();
+                    isMoving = false;
+                    autoSlide = setInterval(nextSlide, 3000);
+                }
+            });
+
+            wrapper.addEventListener('touchend', () => {
+                isMoving = false;
+            });
+        } catch (error) {
+            console.error("Greška pri učitavanju slika:", error);
+        }
+    }
+
+    loadSliderImages();
+
+    // FAQ toggle
+    function toggleFAQ(header) {
+        const item = header.parentElement;
+        const isOpen = item.classList.contains('open');
+
+        document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('open'));
+
+        if (!isOpen) {
+            item.classList.add('open');
+        }
+    }
+
+    // 🔒 GLOBALNA ZAŠTITA OD ČUVANJA I PREVLAČENJA SLIKA
+    document.addEventListener("contextmenu", e => {
+        if (e.target.tagName === "IMG") {
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener("dragstart", e => {
+        if (e.target.tagName === "IMG") {
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener("touchstart", e => {
+        if (e.target.tagName === "IMG") {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    document.querySelectorAll("img").forEach(img => {
+        img.setAttribute("draggable", "false");
+        img.setAttribute("oncontextmenu", "return false");
+    });
+
+    document.addEventListener("touchstart", function (e) {
+        if (e.target.tagName === "IMG") {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Skloni preloader nakon što se stranica učita
+        setTimeout(function() {
+            document.getElementById('preloader').classList.add('fade-out');
+        }, 3000); // Promenite vreme ove pauze prema potrebi
+    });
+    const forma = document.getElementById("zakazivanje-form");
+    const poruka = document.getElementById("zakazivanje-poruka");
+
+    forma.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const data = Object.fromEntries(new FormData(forma).entries());
+
+        try {
+            const res = await fetch("/api/zakazivanje", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const text = await res.text();
+            poruka.style.color = res.ok ? "green" : "red";
+            poruka.textContent = text;
+
+            if (res.ok) {
+                forma.reset();
+            }
+        } catch (err) {
+            poruka.textContent = "Došlo je do greške. Pokušajte ponovo.";
+            poruka.style.color = "red";
+        }
+    });
+    function toggleMenu() {
+        document.getElementById("mobileMenu").classList.toggle("open");
+    }
+</script>
+
+
+</body>
+</html>

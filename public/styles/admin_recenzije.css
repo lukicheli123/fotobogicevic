@@ -1,0 +1,293 @@
+/* Webkit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #ffffff;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #FFA500;
+    border-radius: 10px;
+    border: 2px solid #2c2c2c;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #f9b857;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #FFA500 #2c2c2c;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom right, #fdfdfd, #e9ecef);
+    color: #333;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logoslika {
+    height: 60px;
+    margin-left: 20px; /* Pomeramo logo malo levo */
+}
+
+.nav-link {
+    color: orange;
+    font-weight: bold;
+    padding: 10px 10px 5px 5px;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ddd;
+}
+
+
+main {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+h2 {
+    text-align: center;
+    margin: 30px 0 20px;
+    color: #212529;
+}
+
+form {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 500px;
+    margin: 0 auto 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input[type="file"] {
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+.slider-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.slider-item {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.slider-item:hover {
+    transform: translateY(-4px);
+}
+
+
+
+@media (max-width: 600px) {
+    form {
+        width: 90%;
+    }
+}
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none; /* po defaultu sakriven */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px 35px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    text-align: center;
+    max-width: 350px;
+    width: 90%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    position: relative;
+}
+
+.checkmark {
+    font-size: 48px;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.order-number {
+    font-weight: bold;
+    font-size: 20px;
+    margin: 15px 0;
+}
+
+.modal-content button {
+    background-color: #28a745;
+    border: none;
+    padding: 10px 18px;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.modal-content button:hover {
+    background-color: #218838;
+}
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #dc3545; /* crvena boja */
+    border: none;
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    line-height: 28px;
+    text-align: center;
+    box-shadow: 0 0 6px rgba(0,0,0,0.2);
+    transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #b02a37; /* tamnija crvena na hover */
+}
+.delete-mark {
+    font-size: 60px;
+    color: #dc3545; /* crvena */
+    margin-bottom: 15px;
+    user-select: none;
+}
+footer {
+
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    z-index: 1000;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+.footer-section {
+    flex: 1 1 300px;
+    margin: 7px;
+}
+
+.footer-section h3 {
+    font-size: 20px;
+    border-bottom: 2px solid #fff;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.footer-section p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.footer-copyright {
+    background-color: #222;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.social-icons a {
+    display: inline-block;
+    text-align: center;
+}
+
+.social-icons img {
+    width: 30px;
+    height: 30px;
+    filter: invert(100%);
+    transition: transform 0.3s ease;
+}
+
+.social-icons img:hover {
+    transform: scale(1.2);
+}
+main {
+    margin-top: 100px; /* prostor za fiksni header */
+    padding-bottom: 60px; /* dodatni prostor iznad footera */
+}

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - Foto Studio Bogićević</title>
+  <link rel="stylesheet" href="/styles/template.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    .dashboard-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tab-buttons button {
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .tab-buttons button.active {
+      background: #007bff;
+    }
+    .tab-section {
+      display: none;
+    }
+    .tab-section.active {
+      display: block;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table th, table td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    header.fixed {
+      background: #fff;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ccc;
+    }
+    .fixed-nav a {
+      margin-right: 15px;
+      text-decoration: none;
+      color: #333;
+    }
+    .toggle-theme {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .dark-mode {
+      background: #222;
+      color: #eee;
+    }
+    .dark-mode .stat-card {
+      background: #333;
+      color: #eee;
+    }
+  </style>
+</head>
+<body>
+<button class="toggle-theme" onclick="toggleTheme()" type="button">🌗</button>
+<header class="fixed">
+  <nav class="fixed-nav">
+    <a href="/admin">Dashboard</a>
+    <a href="/admin_porudzbine.html">Porudžbine</a>
+    <a href="/admin_admini.html">Superadmin</a>
+    <a href="/logout">Izloguj se</a>
+  </nav>
+</header>
+
+<div class="dashboard-wrapper">
+  <h2>📊 Admin Statistika</h2>
+
+  <div class="tab-buttons">
+    <button onclick="setTab('statistika')" class="active" type="button">📈 Statistika</button>
+    <button onclick="setTab('recent')" type="button">🕒 Zadnje porudžbine</button>
+  </div>
+
+  <div id="statistika" class="tab-section active">
+    <label>Godina:</label>
+    <select id="yearSelect" onchange="fetchStats()">
+      <option value="">Sve</option>
+      <option value="2024">2024</option>
+      <option value="2025">2025</option>
+    </select>
+
+    <label style="margin-left: 20px;">Status:</label>
+    <select id="statusSelect" onchange="fetchStats()">
+      <option value="">Svi</option>
+      <option value="na čekanju">Na čekanju</option>
+      <option value="potvrđena">Potvrđene</option>
+      <option value="odbijena">Odbijene</option>
+    </select>
+
+    <button onclick="exportCSV()" type="button">📥 CSV</button>
+    <a href="/api/admin/statistika/pdf" class="btn-download">📄 PDF</a>
+
+    <div class="stat-grid">
+      <div class="stat-card"><h3>Porudžbine</h3><canvas id="ordersChart"></canvas></div>
+      <div class="stat-card"><h3>Zarada</h3><canvas id="revenueChart"></canvas></div>
+      <div class="stat-card"><h3>Formati</h3><canvas id="formatChart"></canvas></div>
+      <div class="stat-card"><h3>Dani</h3><canvas id="daysChart"></canvas></div>
+    </div>
+
+    <div class="stat-card">
+      <h3>Top korisnici</h3>
+      <table>
+        <thead><tr><th>Korisnik</th><th>Email</th><th>Broj</th><th>Ukupno</th></tr></thead>
+        <tbody id="topUsers"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="recent" class="tab-section">
+    <div class="stat-card">
+      <h3>Zadnjih 5 porudžbina</h3>
+      <table>
+        <thead><tr><th>#</th><th>Korisnik</th><th>Datum</th><th>Status</th><th>Ukupno</th></tr></thead>
+        <tbody id="recentOrders"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('dark-mode', document.body.classList.contains('dark-mode'));
+  }
+
+  function setTab(id) {
+    document.querySelectorAll('.tab-section').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.tab-buttons button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`[onclick="setTab('${id}')"]`).classList.add('active');
+  }
+
+  let charts = [];
+
+  async function fetchStats() {
+    const god = document.getElementById('yearSelect').value;
+    const status = document.getElementById('statusSelect').value;
+    const query = new URLSearchParams();
+    if (god) query.append('godina', god);
+    if (status) query.append('status', status);
+
+    try {
+      const res = await fetch(`/api/admin/statistika?${query}`);
+      const data = await res.json();
+
+      charts.forEach(c => c.destroy());
+      charts = [];
+
+      charts.push(new Chart(document.getElementById('ordersChart'), {
+        type: 'bar',
+        data: { labels: data.months, datasets: [{ label: 'Porudžbine', data: data.counts }] }
+      }));
+
+      charts.push(new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: { labels: data.months, datasets: [{ label: 'Zarada', data: data.revenue }] }
+      }));
+
+      charts.push(new Chart(document.getElementById('formatChart'), {
+        type: 'pie',
+        data: { labels: data.formatLabels, datasets: [{ data: data.formatCounts }] }
+      }));
+
+      charts.push(new Chart(document.getElementById('daysChart'), {
+        type: 'bar',
+        data: { labels: data.daniLabels, datasets: [{ label: 'Dani', data: data.daniCounts }] }
+      }));
+
+      // Top korisnici
+      const usersEl = document.getElementById('topUsers');
+      usersEl.innerHTML = data.topUsers?.map(user =>
+              `<tr><td>${user.ime} ${user.prezime}</td><td>${user.email}</td><td>${user.telefon}</td><td>${user.ukupno} RSD</td></tr>`
+      ).join('') || '<tr><td colspan="4">Nema podataka</td></tr>';
+
+    } catch (err) {
+      console.error("Greška pri učitavanju statistike:", err);
+    }
+  }
+
+  async function fetchRecent() {
+    try {
+      const res = await fetch('/api/admin/poslednje');
+      const data = await res.json();
+      document.getElementById('recentOrders').innerHTML = data.map(r =>
+              `<tr>
+          <td>${r.broj_porudzbine}</td>
+          <td>${r.ime} ${r.prezime}</td>
+          <td>${r.datum}</td>
+          <td style="color:${r.status === 'potvrđena' ? 'green' : r.status === 'odbijena' ? 'red' : 'orange'}">${r.status}</td>
+          <td>${r.ukupno} RSD</td>
+        </tr>`).join('');
+    } catch (err) {
+      console.error("Greška pri učitavanju zadnjih porudžbina:", err);
+    }
+  }
+
+  function exportCSV() {
+    fetch('/api/admin/statistika')
+            .then(res => res.json())
+            .then(data => {
+              let csv = 'Mesec,Broj,Zarada\n';
+              data.months.forEach((m, i) => {
+                csv += `${m},${data.counts[i]},${data.revenue[i]}\n`;
+              });
+              const blob = new Blob([csv], { type: 'text/csv' });
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = `statistika_${new Date().toISOString().slice(0, 10)}.csv`;
+              link.click();
+            })
+            .catch(err => console.error("Greška pri exportu CSV:", err));
+  }
+
+  window.onload = () => {
+    if (localStorage.getItem('dark-mode') === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+    fetchStats();
+    fetchRecent();
+  };
+</script>
+</body>
+</html>

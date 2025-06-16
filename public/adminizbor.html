@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Foto Studio Bogićević</title>
+  <link rel="stylesheet" href="styles/adminizbor.css">
+  <link rel="icon" href="logo/icon.png" type="image/png">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<header>
+  <img src="logo/logo.png" class="logo" alt="Logo">
+  <nav>
+    <span id="loggedInAdmin" style="color: white; font-weight: bold;"></span>
+    <button id="authButton" onclick="toggleAuth()" style="margin-left: 20px; background: #FFA500; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer;">Login</button>
+  </nav>
+</header>
+
+<main class="admin-main">
+  <h1>Admin Panel</h1>
+  <section class="admin-section">
+    <div class="admin-dashboard">
+      <div class="dashboard-item">
+        <h3>📦 Admin Porudžbine</h3>
+        <p>Pogledaj i upravljaj pristiglim porudžbinama korisnika.</p>
+        <a href="/admin_porudzbine" class="btn">Idi na porudžbine</a>
+      </div>
+      <div class="dashboard-item">
+        <h3>🖼️📦 Online porudžbine slika</h3>
+        <p>Pregled porudžbina slika poslatih putem galerije.</p>
+        <a href="/admin_orders" class="btn">Pogledaj porudžbine</a>
+      </div>
+      <div class="dashboard-item">
+        <h3>🗓️ Admin Zakazivanja</h3>
+        <p>Pregled svih termina zakazanih od strane korisnika.</p>
+        <a href="/admin_zakazivanja" class="btn">Idi na zakazivanja</a>
+      </div>
+      <div class="dashboard-item">
+        <h3>🖼️ Admin Slider</h3>
+        <p>Dodaj ili ukloni slike sa naslovnog slajdera sajta.</p>
+        <a href="/admin_slider" class="btn">Uredi slider</a>
+      </div>
+      <div class="dashboard-item">
+        <h3>👤 Admini</h3>
+        <p>Samo superadmin može upravljati drugim adminima.</p>
+        <a href="/admin_admini" class="btn">Upravljanje adminima</a>
+      </div>
+      <div class="dashboard-item">
+        <h3>📅 Admin Kategorije</h3>
+        <p>Dodaj kategorije i slike za galeriju korisnicima.</p>
+        <a href="/admin" class="btn">Galerija i kategorije</a>
+      </div>
+      <div class="dashboard-item">
+        <h3>💳 Admin Uplate</h3>
+        <p>Pregled, prihvatanje ili odbijanje dokaza o uplati.</p>
+        <a href="/admin_uplate" class="btn">Upravljanje uplatama</a>
+      </div>
+      <div class="dashboard-item">
+        <h3>⭐ Recenzije</h3>
+        <p>Pregled i provera svih recenzija koji su ostavili korisnici.</p>
+        <a href="/admin_recenzije" class="btn">Pogledaj recenzije</a>
+      </div>
+      <div class="dashboard-item">
+        <h3>📅 Audit Logovi</h3>
+        <p>Pregled svih akcija koje su admini izvršili na sistemu.</p>
+        <a href="/admin_audit" class="btn">Pogledaj audit log</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="loginModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
+  <div style="background:white; padding:30px; border-radius:10px; width:90%; max-width:400px; box-shadow:0 0 20px rgba(0,0,0,0.3); position:relative;">
+    <button onclick="sakrijLogin()" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:18px;">✖</button>
+    <h2 style="text-align:center;">Admin Prijava</h2>
+    <input id="username" placeholder="Korisničko ime" style="width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #ccc;">
+    <input id="password" type="password" placeholder="Lozinka" style="width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #ccc;">
+    <button onclick="loginAdmin()" style="width:100%; padding:10px; background:#007bff; color:white; border:none; border-radius:5px; font-weight:bold;">Prijavi se</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Lokacija</h3>
+      <p>Ljubić Kej, Čačak 32000</p>
+    </div>
+    <div class="footer-section">
+      <h3>Kontakt</h3>
+      <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+    </div>
+    <div class="footer-section">
+      <h3>Pratite nas</h3>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook" ></a>
+        <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail" ></a>
+        <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram" ></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+  </div>
+</footer>
+
+<script>
+    async function prikaziUlogovanogAdmina() {
+      try {
+        const res = await fetch('/api/korisnik', {
+          cache: "no-store",
+          credentials: "include" // ⬅️ najvažnije!
+        });
+
+        const data = await res.json();
+        const loggedSpan = document.getElementById('loggedInAdmin');
+        const authButton = document.getElementById('authButton');
+
+        if (data.username) {
+          loggedSpan.innerText = "Ulogovani: " + data.username;
+          authButton.innerText = "Logout";
+          authButton.onclick = logout;
+        } else {
+          loggedSpan.innerText = "Niste prijavljeni";
+          authButton.innerText = "Login";
+          authButton.onclick = prikaziLogin;
+        }
+      } catch {
+        document.getElementById('loggedInAdmin').innerText = "Greška pri dohvatanju korisnika.";
+      }
+    }
+
+    function prikaziLogin() {
+      document.getElementById("loginModal").style.display = "flex";
+    }
+
+    function sakrijLogin() {
+      document.getElementById("loginModal").style.display = "none";
+    }
+
+    async function logout() {
+      try {
+        await fetch('/logout', {
+          method: 'GET',
+          credentials: 'include'  // ⬅️ najvažnije!
+        });
+        window.location.reload();
+      } catch {
+        alert("Greška pri odjavi.");
+      }
+    }
+
+
+
+
+    prikaziUlogovanogAdmina();
+  const socket = io();
+  socket.on('nova_porudzbina', (data) => {
+    const notifikacija = document.createElement('div');
+    notifikacija.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            z-index: 9999;
+            font-size: 16px;
+        ">
+            ✅ Nova porudžbina od <strong>${data.ime} ${data.prezime}</strong><br>
+            Broj porudžbine: <strong>#${data.broj_porudzbine}</strong>
+        </div>
+    `;
+    document.body.appendChild(notifikacija);
+    setTimeout(() => notifikacija.remove(), 7000);
+  });
+</script>
+<script src="scripts/adminizbor.js"></script>
+</body>
+</html>

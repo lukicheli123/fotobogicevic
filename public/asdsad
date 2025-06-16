@@ -1,0 +1,84 @@
+<div class="paket-puna" data-aos="fade-right">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="slike/osnovni.jpg" alt="Osnovni paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <div class="paket-napomena">IDEALNO ZA MANJE PROSLAVE I INTIMNE TRENUTKE.</div>
+                            <h3>OSNOVNI PAKET</h3>
+                            <div class="paket-linija"></div>
+
+                            <ul>
+                                <li>Fotografisanje proslave</li>
+                                <li>Obrada i isporuka fotografija u digitalnom formatu</li>
+                                <li>Grupne fotografije sa slavljenikom i gostima</li>
+                                <li>Izrada fotografija za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">50 EURA</div>
+            </div>
+
+
+
+
+            <!-- STANDARD PAKET -->
+            <div class="paket-puna">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="putanja-do-slike-standard-paket.jpg" alt="Standard paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <p class="paket-napomena">NAJPOPULARNIJI IZBOR ZA KOMPLETNU PRIČU SA ROĐENDANA.</p>
+                            <h3>STANDARD PAKET</h3>
+                            <div class="paket-linija"></div>
+                            <ul>
+                                <li>Fotografisanje proslave</li>
+                                <li>Obrada i isporuka u digitalnom formatu i na USB od 32GB</li>
+                                <li>Fotoshooting na željenoj lokaciji</li>
+                                <li>Fotografije dekoracije i detalja</li>
+                                <li>Porodične fotografije sa slavljenikom</li>
+                                <li>Foto album sa 60 štampanih fotografija 13x18</li>
+                                <li>Štampanje za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">100 EURA</div> <!-- Možeš promeniti cenu po potrebi -->
+            </div>
+
+            <!-- PREMIUM PAKET -->
+            <div class="paket-puna" data-aos="fade-right">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="slike/premium.jpg" alt="Premium paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <div class="paket-napomena">ZA ONE KOJI ŽELE EKSKLUZIVNU USLUGU I USPOMENE KOJE TRAJU ZAUVEK.</div>
+                            <h3>PREMIUM PAKET</h3>
+                            <div class="paket-linija"></div>
+                            <ul>
+                                <li>Fotografisanje cele proslave i dekoracije</li>
+                                <li>Obrada + USB 32GB u kutiji sa slikom slavljenika</li>
+                                <li>Ekskluzivne fotografije slavljenika</li>
+                                <li>Foto album sa 100 štampanih fotografija 13x18</li>
+                                <li>Photoshooting na željenoj lokaciji</li>
+                                <li>Štampanje za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">150 EURA</div>
+            </div>
+        </div>
+        </div>

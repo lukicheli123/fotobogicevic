@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Superadmin Panel - Foto Studio Bogićević</title>
+  <link rel="stylesheet" href="styles/admin_admini.css">
+  <style>
+    /* Postojeći stilovi ostaju isti */
+
+  body {
+
+
+    font-family: 'Segoe UI', sans-serif;
+    background: #f8f9fa;
+    color: #333;
+  }
+
+  h2 {
+    margin: 120px auto 30px; /* Dodato 120px gore */
+    text-align: center;
+
+    color: #212529;
+  }
+
+  form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 12px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 30px;
+    align-items: center;
+  }
+
+  input, button {
+    padding: 10px 12px;
+    font-size: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+  }
+
+  input:focus {
+    border-color: #007bff;
+  }
+
+  button {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  table {
+    padding-left: 20px;
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  th, td {
+
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+
+  th {
+    padding-left: 20px;
+    background: #f1f3f5;
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+  }
+
+  td {
+    padding-left: 20px;
+    font-size: 14px;
+  }
+
+  .btn-delete {
+
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+  }
+
+  .btn-delete:hover {
+    background-color: #b02a37;
+  }
+
+  @media (max-width: 768px) {
+    form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+</head>
+<body>
+<header>
+  <img src="logo/logo.png" class="logo" alt="Logo">
+  <nav>
+    <span id="loggedInAdmin" style="color: white; font-weight: bold;"></span>
+    <button  onclick="window.location.href='/login'" style="margin-left: 20px; background: #FFA500; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer;">Nazad</button>
+  </nav>
+
+</header>
+<main>
+  <h2>👑 Superadmin Panel - Upravljanje Adminima</h2>
+
+  <form onsubmit="dodajAdmina(event)">
+    <input type="text" id="newUsername" placeholder="Korisničko ime" required />
+    <input type="text" id="newIme" placeholder="Ime admina (opciono)" />
+    <input type="password" id="newPassword" placeholder="Lozinka" required />
+    <button type="submit">➕ Dodaj admina</button>
+  </form>
+
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Korisničko ime</th>
+      <th>Ime</th>
+      <th>Akcija</th>
+    </tr>
+    </thead>
+    <tbody id="adminTable">
+    <tr><td colspan="4">Učitavanje...</td></tr>
+    </tbody>
+  </table>
+</main>
+<footer>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Lokacija</h3>
+      <p>Ljubić Kej, Čačak 32000</p>
+    </div>
+    <div class="footer-section">
+      <h3>Kontakt</h3>
+      <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+    </div>
+    <div class="footer-section">
+      <h3>Pratite nas</h3>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook" ></a>
+        <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail" ></a>
+        <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram" ></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+  </div>
+</footer>
+<script>
+  async function ucitajAdmine() {
+    const res = await fetch('/api/admini');
+    const admini = await res.json();
+    const tabela = document.getElementById('adminTable');
+    tabela.innerHTML = '';
+    admini.forEach(a => {
+      tabela.innerHTML += `
+          <tr>
+            <td>${a.id}</td>
+            <td>${a.username}</td>
+            <td>${a.ime || ''}</td>
+            <td><button class="btn-delete" onclick="obrisiAdmina(${a.id})">Obriši</button></td>
+          </tr>`;
+    });
+  }
+
+  async function proveriSuperadmin() {
+    try {
+      const res = await fetch('/api/korisnik');
+      const korisnik = await res.json();
+      if (!korisnik || !korisnik.username || korisnik.username !== 'lukicheli') {
+        document.body.innerHTML = "<h2 style='text-align:center;color:#c00'>⛔ Pristup nije dozvoljen</h2>";
+      }
+    } catch (e) {
+      document.body.innerHTML = "<h2 style='text-align:center;color:#c00'>⛔ Došlo je do greške</h2>";
+    }
+  }
+
+  window.onload = () => {
+    proveriSuperadmin();
+  };
+
+  async function dodajAdmina(e) {
+    e.preventDefault();
+    const username = document.getElementById('newUsername').value.trim();
+    const ime = document.getElementById('newIme').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+
+    if (!username || !password) {
+      alert('Popuni obavezna polja');
+      return;
+    }
+
+    const res = await fetch('/api/admini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, ime, password })
+    });
+
+    if (res.ok) {
+      ucitajAdmine();
+      e.target.reset();
+    } else {
+      alert('Greška pri dodavanju admina');
+    }
+  }
+
+  async function obrisiAdmina(id) {
+    if (!confirm('Da li ste sigurni da želite da obrišete ovog admina?')) return;
+    const res = await fetch(`/api/admini/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      ucitajAdmine();
+    } else {
+      alert('Greška pri brisanju');
+    }
+  }
+
+  ucitajAdmine();
+  async function prikaziUlogovanogAdmina() {
+    try {
+      const res = await fetch('/api/korisnik');
+      const data = await res.json();
+      if (data.username) {
+        document.getElementById('loggedInAdmin').innerText = "Ulogovani: " + data.username;
+
+      } else {
+        document.getElementById('loggedInAdmin').innerText = "Niste prijavljeni";
+
+      }
+    } catch {
+      document.getElementById('loggedInAdmin').innerText = "Greška pri dohvatanju korisnika.";
+    }
+  }
+
+  prikaziUlogovanogAdmina();
+  function sakrijLogin() {
+    document.getElementById("loginModal").style.display = "none";
+  }
+</script>
+
+</body>
+</html>

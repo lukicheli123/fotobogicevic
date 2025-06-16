@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korpa</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" href="logo/icon.png" type="image/png">
+</head>
+<body>
+<div id="preloader">
+    <img src="logo/logo2.png" alt="Logo" id="preloader-logo">
+</div>
+<header>
+    <img src="logo/logo2.png" alt="Foto Bogićević Logo" class="logo">
+    <nav class="nav-desktop">
+        <a href="/" class="nav-link">Početna</a>
+        <a href="/galerija" class="nav-link">Galerija</a>
+        <a href="/narucivanjeslika" class="nav-link">Poruči</a>
+        <a href="/cenovnik" class="nav-link">Cenovnik</a>
+    </nav>
+
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div id="mobileMenu" class="mobile-menu">
+        <a href="/">Početna</a>
+        <a href="/galerija">Galerija</a>
+        <a href="/narucivanjeslika">Poruči</a>
+        <a href="cenovnik">Cenovnik</a>
+    </div>
+
+</header>
+
+<div id="cart-container">
+    <div id="cart"></div>
+
+    <div>
+        <h2>Informacije</h2>
+        <form id="orderForm">
+            <label for="imeiprezime">Ime i prezime:</label>
+            <input type="text" id="imeiprezime" name="imeiprezime" required>
+            <label for="brojtelefona">Broj telefona:</label>
+            <input type="tel" id="brojtelefona" name="brojtelefona" required>
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" required>
+            <button type="submit">Završi porudžbinu</button>
+        </form>
+<p id="pricePerPhoto">CENA FOTOGRAFIJE: <span id="pricePerPhotoValue">cena</span> rsd</p>
+    <p id="totalPrice">UKUPNA CENA SVIH FOTOGRAFIJA: <span id="totalPriceValue">cena</span>rsd</p>
+        <div id="orderStatus"></div>
+    </div>
+</div>
+  <div id="note">
+        <p>NAPOMENA: SLIKE NA SAJTU SU LOŠIJEG KVALITETA RADI BRŽEG UČITAVANJA SAJTA. SLIKE KAD SE ŠTAMPAJU ZADRŽAVAJU NAJBOLJI KVALITET</p>
+    </div>
+<footer>
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>Lokacija</h3>
+            <p>Ljubić Kej, Čačak 32000</p>
+
+        </div>
+        <div class="footer-section">
+            <h3>Kontakt</h3>
+            <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+        </div>
+        <div class="footer-section">
+            <h3>Pratite nas</h3>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook" ></a>
+                <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail" ></a>
+                <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram" ></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+    </div>
+</footer>
+<div id="successModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="checkmark">✔️</div>
+        <h2>Uspešno ste kreirali porudžbinu!</h2>
+        <div class="order-number" id="orderNumberDisplay"></div>
+
+        <div style="margin: 20px 0;">
+            <img src="logo/paypal.png" alt="PayPal" style="width: 100px;">
+            <p style="font-size: 16px; margin-top: 10px;">bogicevicfoto@gmail.com</p>
+        </div>
+
+        <p style="margin-bottom: 10px;">Dostavite dokaz o uplati:</p>
+        <input type="file" id="paymentProof" accept="image/*" style="margin-bottom: 10px;">
+        <img id="proofPreview" style="display: block; margin: 10px auto; max-width: 35%; border: 1px solid rgb(204, 204, 204); border-radius: 8px;" />
+
+        <p style="font-size: 12px; color: #555;">* Obavezno navedite broj porudžbine kada budete slali novac.</p>
+        <p style="font-size: 13px; color: #555; margin-bottom: 20px;">
+            Vaše slike će biti dostavljene na mejl u roku od 24h.
+        </p>
+
+        <button onclick="submitPaymentProof()" style="background-color: green; color: white;">Završi</button>
+    </div>
+</div>
+
+<script src="scripts/cart.js"></script>
+</body>
+</html>

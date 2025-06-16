@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <title>Praćenje porudžbine</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 40px;
+            background: #f1f1f1;
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            margin: 10px;
+        }
+        button {
+            background-color: #ffa500;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .status-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 30px auto;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        }
+        .status-box p {
+            font-size: 18px;
+            margin: 12px 0;
+        }
+        .success { color: green; }
+        .danger { color: red; }
+        .info { color: orange; }
+    </style>
+</head>
+<body>
+
+<h2>Praćenje porudžbine</h2>
+<input type="text" id="brojInput" placeholder="Unesite broj porudžbine">
+<button onclick="proveriStatus()">Prikaži status</button>
+
+<div id="rezultat"></div>
+
+<script>
+    async function proveriStatus(brojManual) {
+        const input = document.getElementById("brojInput");
+        const broj = brojManual || input.value.trim().replace(/^#/, '');
+        const rezultat = document.getElementById("rezultat");
+        rezultat.innerHTML = "";
+
+        if (!broj) {
+            alert("Unesite broj porudžbine!");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/pracenje/${broj}`);
+            if (!res.ok) {
+                rezultat.innerHTML = `<p class="danger">❌ Porudžbina nije pronađena.</p>`;
+                return;
+            }
+            const data = await res.json();
+
+            let statusColor = data.status === 'potvrđena' ? 'success' : data.status === 'odbijena' ? 'danger' : 'info';
+            let fazaTekst = data.status_izrade || "Nije započeta";
+            let zavrsena = data.status_izrade === 'finalizovano';
+
+            rezultat.innerHTML = `
+                <div class="status-box">
+                    <p><strong>Broj porudžbine:</strong> ${data.broj_porudzbine}</p>
+                    <p><strong>Status:</strong> <span class="${statusColor}">${data.status}</span></p>
+                    <p><strong>Faza izrade:</strong> ${zavrsena ? "Završena ✅" : fazaTekst}</p>
+                    ${zavrsena ? `<p class="success">📦 Porudžbina je kompletirana i zaključana.</p>` : ''}
+                </div>
+            `;
+        } catch (err) {
+            console.error(err);
+            rezultat.innerHTML = `<p class="danger">Greška prilikom dohvatanja podataka.</p>`;
+        }
+    }
+
+    // Automatski učitaj broj iz URL-a ako postoji
+    document.addEventListener('DOMContentLoaded', () => {
+        const parts = window.location.pathname.split('/');
+        const broj = parts.length > 2 ? parts[2] : null;
+
+        if (broj) {
+            document.getElementById("brojInput").value = broj;
+            proveriStatus(broj);
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Audit Log - Admin</title>
+  <link rel="stylesheet" href="styles/adminaudit.css">
+</head>
+<body onload="fetchLog()">
+<header>
+  <img src="logo/logo.png" class="logo" alt="Logo">
+  <nav>
+    <span id="loggedInAdmin" style="color: white; font-weight: bold;"></span>
+    <button  onclick="window.location.href='/login'" style="margin-left: 20px; background: #FFA500; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer;">Nazad</button>
+  </nav>
+
+</header>
+
+<div class="wrapper">
+  <h2>🕵️ Audit Log - Aktivnosti administratora</h2>
+  <table>
+    <thead>
+    <tr>
+      <th>Administrator</th>
+      <th>Akcija</th>
+      <th>Vreme</th>
+    </tr>
+    </thead>
+    <tbody id="logBody">
+    <tr><td colspan="3">Učitavanje...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  async function fetchLog() {
+    try {
+      const res = await fetch('/api/admin/audit-log');
+      const data = await res.json();
+      const tbody = document.getElementById('logBody');
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="empty-message">🕑 Nema zabeleženih aktivnosti.</td></tr>`;
+        return;
+      }
+
+      data.forEach(row => {
+        const datum = new Date(row.vreme);
+        const formatirano = datum.toLocaleString('sr-RS');
+        tbody.innerHTML += `
+          <tr>
+            <td>${row.admin_username}</td>
+            <td>${row.akcija}</td>
+            <td>${formatirano}</td>
+          </tr>`;
+      });
+
+    } catch (err) {
+      console.error('Greška prfi učitavanju loga:', err);
+      document.getElementById('logBody').innerHTML = `<tr><td colspan="3">Greška pri učitavanju podataka.</td></tr>`;
+    }
+  }
+  async function proveriAdmina(onlySuperadmin = false) {
+    try {
+      const res = await fetch('/api/korisnik');
+      if (!res.ok) throw new Error('Nije ulogovan');
+
+      const korisnik = await res.json();
+
+      if (!korisnik || !korisnik.username) {
+        throw new Error('Nije ulogovan');
+      }
+
+      if (onlySuperadmin && korisnik.username !== 'lukicheli') {
+        throw new Error('Nema pristup');
+      }
+
+      // Ako je sve ok, vraćamo korisnika
+      return korisnik;
+
+    } catch (e) {
+      document.body.innerHTML = `<h2 style="text-align:center; color:#c00;">⛔ Pristup nije dozvoljen</h2>`;
+      return null;
+    }
+  }
+
+  window.onload = () => {
+    proveriAdmina();
+    fetchLog();
+  };
+  async function prikaziUlogovanogAdmina() {
+    try {
+      const res = await fetch('/api/korisnik');
+      const data = await res.json();
+      if (data.username) {
+        document.getElementById('loggedInAdmin').innerText = "Ulogovani: " + data.username;
+
+      } else {
+        document.getElementById('loggedInAdmin').innerText = "Niste prijavljeni";
+
+      }
+    } catch {
+      document.getElementById('loggedInAdmin').innerText = "Greška pri dohvatanju korisnika.";
+    }
+  }
+
+  prikaziUlogovanogAdmina();
+  function sakrijLogin() {
+    document.getElementById("loginModal").style.display = "none";
+  }
+
+
+
+  async function loginAdmin() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!username || !password) {
+      alert("Popuni sva polja");
+      return;
+    }
+
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    if (res.ok) {
+      location.reload();
+    } else {
+      alert("Neuspešna prijava");
+    }
+  }
+
+  function toggleMenu() {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('show');
+  }
+  window.toggleMenu = function () {
+    const menu = document.getElementById('mobileMenu');
+    menu.classList.toggle('show');
+  }
+</script>
+<footer>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3>Lokacija</h3>
+      <p>Ljubić Kej, Čačak 32000</p>
+    </div>
+    <div class="footer-section">
+      <h3>Kontakt</h3>
+      <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+    </div>
+    <div class="footer-section">
+      <h3>Pratite nas</h3>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook" ></a>
+        <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail" ></a>
+        <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram" ></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+  </div>
+
+</footer>
+</body>
+</html>

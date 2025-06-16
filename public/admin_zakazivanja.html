@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <title>📅 Admin Zakazivanja | Foto Studio Bogićević</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/adminzakazani.css">
+    <style>
+
+
+    </style>
+</head>
+<body>
+<header>
+    <img src="logo/logo.png" class="logo" alt="Logo">
+    <nav>
+        <span id="loggedInAdmin" style="color: white; font-weight: bold;"></span>
+        <button  onclick="window.location.href='/login'" style="margin-left: 20px; background: #FFA500; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer;">Nazad</button>
+    </nav>
+
+</header>
+<main class="zakazivanja-main">
+    <h1>📅 Zakazani Termini</h1>
+
+<div class="container">
+    <div id="status">Učitavanje termina...</div>
+    <table id="zakazivanjaTabela" style="display:none;">
+        <thead>
+        <tr>
+            <th>Ime</th>
+            <th>Prezime</th>
+            <th>Email</th>
+            <th>Telefon</th>
+            <th>Usluga</th>
+            <th>Datum</th>
+        </tr>
+        </thead>
+        <tbody id="zakazivanjaBody"></tbody>
+    </table>
+</div>
+</main>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>Lokacija</h3>
+            <p>Ljubić Kej, Čačak 32000</p>
+        </div>
+        <div class="footer-section">
+            <h3>Kontakt</h3>
+            <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+        </div>
+        <div class="footer-section">
+            <h3>Pratite nas</h3>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook" ></a>
+                <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail" ></a>
+                <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram" ></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+    </div>
+</footer>
+<script>
+    async function ucitajZakazivanja() {
+        try {
+            const res = await fetch("/api/sva-zakazivanja");
+            if (!res.ok) throw new Error("Greška prilikom učitavanja.");
+
+            const data = await res.json();
+            const body = document.getElementById("zakazivanjaBody");
+            const tabela = document.getElementById("zakazivanjaTabela");
+            const status = document.getElementById("status");
+
+            if (data.length === 0) {
+                status.textContent = "Nema nijednog zakazivanja.";
+                return;
+            }
+
+            status.style.display = "none";
+            tabela.style.display = "table";
+
+            data.forEach(z => {
+                const red = document.createElement("tr");
+                red.innerHTML = `
+            <td>${z.ime}</td>
+            <td>${z.prezime}</td>
+            <td>${z.email}</td>
+            <td>${z.telefon}</td>
+            <td>${z.usluga}</td>
+            <td class="timestamp">${new Date(z.zakazano_vreme).toLocaleDateString("sr-RS", {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                })}</td>
+          `;
+                body.appendChild(red);
+            });
+
+        } catch (err) {
+            document.getElementById("status").textContent = "Greška: " + err.message;
+        }
+    }
+
+    ucitajZakazivanja();
+    async function proveriAdmina(onlySuperadmin = false) {
+        try {
+            const res = await fetch('/api/korisnik');
+            if (!res.ok) throw new Error('Nije ulogovan');
+
+            const korisnik = await res.json();
+
+            if (!korisnik || !korisnik.username) {
+                throw new Error('Nije ulogovan');
+            }
+
+            if (onlySuperadmin && korisnik.username !== 'lukicheli') {
+                throw new Error('Nema pristup');
+            }
+
+            // Ako je sve ok, vraćamo korisnika
+            return korisnik;
+
+        } catch (e) {
+            document.body.innerHTML = `<h2 style="text-align:center; color:#c00;">⛔ Pristup nije dozvoljen</h2>`;
+            return null;
+        }
+    }
+
+    window.onload = () => {
+        proveriAdmina();
+        ucitajZakazivanja();
+    };
+    async function prikaziUlogovanogAdmina() {
+        try {
+            const res = await fetch('/api/korisnik');
+            const data = await res.json();
+            if (data.username) {
+                document.getElementById('loggedInAdmin').innerText = "Ulogovani: " + data.username;
+
+            } else {
+                document.getElementById('loggedInAdmin').innerText = "Niste prijavljeni";
+
+            }
+        } catch {
+            document.getElementById('loggedInAdmin').innerText = "Greška pri dohvatanju korisnika.";
+        }
+    }
+
+    prikaziUlogovanogAdmina();
+
+    function toggleMenu() {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('show');
+    }
+    window.toggleMenu = function () {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('show');
+    }
+</script>
+</body>
+</html>

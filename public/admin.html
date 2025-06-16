@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link rel="stylesheet" href="styles/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="logo/icon.png" type="image/png">
+</head>
+<body>
+<header>
+    <img src="logo/logo.png" class="logo" alt="Logo">
+    <nav>
+        <span id="loggedInAdmin" style="color: white; font-weight: bold;"></span>
+        <button id="dugme" onclick="window.location.href='/login'" style="margin-left: 20px; background: #FFA500; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer;">Nazad</button>
+    </nav>
+
+</header>
+<h1>Admin stranica (kategorije)</h1>
+<div class="admin-section">
+    <h2>Kategorije</h2>
+    <form id="categoryForm">
+        <label for="category">Ime kategorije:</label>
+        <input type="text" id="category" name="category" required>
+        <button type="submit">Dodaj kategoriju</button>
+    </form>
+</div>
+<div class="admin-section">
+    <h2>Slike</h2>
+    <form id="imageUploadForm" enctype="multipart/form-data">
+        <label for="categorySelect">Odaberi kategoriju:</label>
+        <select id="categorySelect" name="category" required></select>
+        <label for="images">Izaberi slike:</label>
+        <input type="file" id="images" name="images" accept="image/*" multiple required>
+        <button type="button" id="previewImagesButton">Pogledaj slike</button>
+        <div id="imagePreviewContainer"></div>
+        <button type="submit" id="uploadImagesButton" style="display:none;">Uploaduj slike</button>
+    </form>
+</div>
+<div class="admin-section">
+    <h2>Upravljaj kategorijama</h2>
+    <div id="categoryList"></div>
+</div>
+<script src="scripts/admin.js"></script>
+<footer>
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>Lokacija</h3>
+            <p>Ljubić Kej, Čačak 32000</p>
+        </div>
+        <div class="footer-section">
+            <h3>Kontakt</h3>
+            <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+        </div>
+        <div class="footer-section">
+            <h3>Pratite nas</h3>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook" ></a>
+                <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail" ></a>
+                <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram" ></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+    </div>
+</footer>
+</body>
+</html>

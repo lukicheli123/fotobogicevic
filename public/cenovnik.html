@@ -1,0 +1,395 @@
+    <!DOCTYPE html>
+    <html lang="sr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cenovnik - Foto Bogićević</title>
+
+        <link rel="stylesheet" href="styles/cenovnik.css" />
+        <link rel="icon" href="logo/logo2.png" type="image/png" />
+
+        <!-- AOS CSS -->
+        <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+    </head>
+    <body>
+    <div id="preloader">
+        <img src="logo/logo2.png" alt="Logo" id="preloader-logo">
+    </div>
+    <header>
+        <div class="header-content">
+            <img src="logo/logo2.png" alt="Logo" class="logo">
+
+            <nav class="nav-desktop">
+                <a href="/" class="nav-link">Početna</a>
+                <a href="/galerija" class="nav-link">Galerija</a>
+                <a href="/narucivanjeslika" class="nav-link">Poruči</a>
+                <a href="/cenovnik" class="nav-link">Cenovnik</a>
+            </nav>
+
+            <div class="hamburger" onclick="toggleMenu()">☰</div>
+            <div id="mobileMenu" class="mobile-menu">
+                <a href="/">Početna</a>
+                <a href="/galerija">Galerija</a>
+                <a href="/narucivanjeslika">Poruči</a>
+                <a href="/cenovnik">Cenovnik</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-main" id="cenovnik">
+        <div class="container">
+            <h1>Cenovnik</h1>
+            <!-- Kategorije kao blokovi -->
+            <div id="kategorije-blokovi">
+                <div class="kategorija-blok" onclick="prikaziKategoriju('rodjendan1')">
+                    <img src="logo/1rodjendan.jpg" alt="1. rođendan">
+                    <p>1. rođendan</p>
+                </div>
+                <div class="kategorija-blok" onclick="prikaziKategoriju('rodjendan18')">
+                    <img src="logo/18rodjendan.jpg" alt="18. rođendan">
+                    <p>18. rođendan</p>
+                </div>
+                <div class="kategorija-blok" onclick="prikaziKategoriju('svadba')">
+                    <img src="logo/vencanja.jpg" alt="Svadba">
+                    <p>Svadba</p>
+                </div>
+            </div>
+            <!-- Paket sekcije -->
+            <div class="kategorija" id="rodjendan1" style="display: none;">
+                <h2>1. rođendan</h2>
+                <button class="nazad-btn" onclick="vratiNaKategorije()">← Nazad</button>
+
+            <div class="paket-puna" data-aos="fade-right">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="logo/1rodjendan1.jpg" alt="Osnovni paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <div class="paket-napomena">IDEALNO ZA MANJE PROSLAVE I INTIMNE TRENUTKE.</div>
+                            <h3>OSNOVNI PAKET</h3>
+                            <div class="paket-linija"></div>
+
+                            <ul>
+                                <li>Fotografisanje proslave</li>
+                                <li>Obrada i isporuka fotografija u digitalnom formatu</li>
+                                <li>Grupne fotografije sa slavljenikom i gostima</li>
+                                <li>Izrada fotografija za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">50 EURA</div>
+            </div>
+            <!-- STANDARD PAKET -->
+            <div class="paket-puna" data-aos="fade-left">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="logo/1rodjendan3.jpg" alt="Standard paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <p class="paket-napomena">NAJPOPULARNIJI IZBOR ZA KOMPLETNU PRIČU SA ROĐENDANA.</p>
+                            <h3>STANDARD PAKET</h3>
+                            <div class="paket-linija"></div>
+                            <ul>
+                                <li>Fotografisanje proslave</li>
+                                <li>Obrada i isporuka u digitalnom formatu i na USB od 32GB</li>
+                                <li>Fotoshooting na željenoj lokaciji</li>
+                                <li>Fotografije dekoracije i detalja</li>
+                                <li>Porodične fotografije sa slavljenikom</li>
+                                <li>Foto album sa 60 štampanih fotografija 13x18</li>
+                                <li>Štampanje za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">100 EURA</div> <!-- Možeš promeniti cenu po potrebi -->
+            </div>
+            <!-- PREMIUM PAKET -->
+            <div class="paket-puna" data-aos="fade-right">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="logo/1rodjendan2.jpg" alt="Premium paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <div class="paket-napomena">ZA ONE KOJI ŽELE EKSKLUZIVNU USLUGU I USPOMENE KOJE TRAJU ZAUVEK.</div>
+                            <h3>PREMIUM PAKET</h3>
+                            <div class="paket-linija"></div>
+                            <ul>
+                                <li>Fotografisanje cele proslave i dekoracije</li>
+                                <li>Obrada + USB 32GB u kutiji sa slikom slavljenika</li>
+                                <li>Ekskluzivne fotografije slavljenika</li>
+                                <li>Foto album sa 100 štampanih fotografija 13x18</li>
+                                <li>Photoshooting na željenoj lokaciji</li>
+                                <li>Štampanje za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">150 EURA</div>
+            </div>
+        </div>
+
+        <div class="kategorija" id="rodjendan18" style="display: none;">
+            <h2>18. rođendan</h2>
+            <button class="nazad-btn" onclick="vratiNaKategorije()">← Nazad</button>
+
+            <div class="paket-puna" data-aos="fade-right">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="logo/18rodjendan3.jpg" alt="Osnovni paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <div class="paket-napomena">IDEALNO ZA MANJE PROSLAVE I INTIMNE TRENUTKE.</div>
+                            <h3>OSNOVNI PAKET</h3>
+                            <div class="paket-linija"></div>
+
+                            <ul>
+                                <li>Fotografisanje proslave</li>
+                                <li>Obrada i isporuka fotografija u digitalnom formatu</li>
+                                <li>Grupne fotografije sa slavljenikom i gostima</li>
+                                <li>Izrada fotografija za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">50 EURA</div>
+            </div>
+            <!-- STANDARD PAKET -->
+            <div class="paket-puna">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="logo/18rodjendan2.jpg" alt="Standard paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <p class="paket-napomena">NAJPOPULARNIJI IZBOR ZA KOMPLETNU PRIČU SA ROĐENDANA.</p>
+                            <h3>STANDARD PAKET</h3>
+                            <div class="paket-linija"></div>
+                            <ul>
+                                <li>Fotografisanje proslave</li>
+                                <li>Obrada i isporuka u digitalnom formatu i na USB od 32GB</li>
+                                <li>Fotoshooting na željenoj lokaciji</li>
+                                <li>Fotografije dekoracije i detalja</li>
+                                <li>Porodične fotografije sa slavljenikom</li>
+                                <li>Foto album sa 60 štampanih fotografija 13x18</li>
+                                <li>Štampanje za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">100 EURA</div> <!-- Možeš promeniti cenu po potrebi -->
+            </div>
+            <!-- PREMIUM PAKET -->
+            <div class="paket-puna" data-aos="fade-right">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="logo/18rodjendan1.jpg" alt="Premium paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <div class="paket-napomena">ZA ONE KOJI ŽELE EKSKLUZIVNU USLUGU I USPOMENE KOJE TRAJU ZAUVEK.</div>
+                            <h3>PREMIUM PAKET</h3>
+                            <div class="paket-linija"></div>
+                            <ul>
+                                <li>Fotografisanje cele proslave i dekoracije</li>
+                                <li>Obrada + USB 32GB u kutiji sa slikom slavljenika</li>
+                                <li>Ekskluzivne fotografije slavljenika</li>
+                                <li>Foto album sa 100 štampanih fotografija 13x18</li>
+                                <li>Photoshooting na željenoj lokaciji</li>
+                                <li>Štampanje za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">150 EURA</div>
+            </div>
+        </div>
+
+
+        <div class="kategorija" id="svadba" style="display: none;">
+            <h2>Svadba</h2>
+            <button class="nazad-btn" onclick="vratiNaKategorije()">← Nazad</button>
+
+            <div class="paket-puna" data-aos="fade-right">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="logo/vencanje1.png" alt="Osnovni paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <div class="paket-napomena">IDEALNO ZA MANJE PROSLAVE I INTIMNE TRENUTKE.</div>
+                            <h3>OSNOVNI PAKET</h3>
+                            <div class="paket-linija"></div>
+
+                            <ul>
+                                <li>Fotografisanje proslave</li>
+                                <li>Obrada i isporuka fotografija u digitalnom formatu</li>
+                                <li>Grupne fotografije sa slavljenikom i gostima</li>
+                                <li>Izrada fotografija za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">50 EURA</div>
+            </div>
+            <!-- STANDARD PAKET -->
+            <div class="paket-puna">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="logo/vencanje3.jpg" alt="Standard paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <p class="paket-napomena">NAJPOPULARNIJI IZBOR ZA KOMPLETNU PRIČU SA ROĐENDANA.</p>
+                            <h3>STANDARD PAKET</h3>
+                            <div class="paket-linija"></div>
+                            <ul>
+                                <li>Fotografisanje proslave</li>
+                                <li>Obrada i isporuka u digitalnom formatu i na USB od 32GB</li>
+                                <li>Fotoshooting na željenoj lokaciji</li>
+                                <li>Fotografije dekoracije i detalja</li>
+                                <li>Porodične fotografije sa slavljenikom</li>
+                                <li>Foto album sa 60 štampanih fotografija 13x18</li>
+                                <li>Štampanje za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">100 EURA</div> <!-- Možeš promeniti cenu po potrebi -->
+            </div>
+            <!-- PREMIUM PAKET -->
+            <div class="paket-puna" data-aos="fade-right">
+                <div class="paket-box">
+                    <div class="paket-levo">
+                        <div class="paket-krug">
+                            <img src="logo/vencanje2.jpg" alt="Premium paket">
+                        </div>
+                    </div>
+                    <div class="paket-desno">
+                        <div class="paket-opis">
+                            <div class="paket-napomena">ZA ONE KOJI ŽELE EKSKLUZIVNU USLUGU I USPOMENE KOJE TRAJU ZAUVEK.</div>
+                            <h3>PREMIUM PAKET</h3>
+                            <div class="paket-linija"></div>
+                            <ul>
+                                <li>Fotografisanje cele proslave i dekoracije</li>
+                                <li>Obrada + USB 32GB u kutiji sa slikom slavljenika</li>
+                                <li>Ekskluzivne fotografije slavljenika</li>
+                                <li>Foto album sa 100 štampanih fotografija 13x18</li>
+                                <li>Photoshooting na željenoj lokaciji</li>
+                                <li>Štampanje za goste (300 din po slici)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="paket-cena-traka">150 EURA</div>
+            </div>
+        </div>
+        </div>
+        <section id="cenovnik1" class="cenovnik-container">
+            <h2 class="cenovnik-title">Cenovnik izrade fotografija</h2>
+
+            <div class="cenovnik-grid">
+                <div class="cenovnik-card">
+                    <h3>Format 10×15</h3>
+                    <ul>
+                        <li><span>1–50 kom</span><strong>55 din/kom</strong></li>
+                        <li><span>51–100 kom</span><strong>50 din/kom</strong></li>
+                        <li><span>101–200 kom</span><strong>45 din/kom</strong></li>
+                        <li><span>201+ kom</span><strong>40 din/kom</strong></li>
+                    </ul>
+                </div>
+
+                <div class="cenovnik-card">
+                    <h3>Format 13×18</h3>
+                    <ul>
+                        <li><span>1–50 kom</span><strong>67 din/kom</strong></li>
+                        <li><span>51–100 kom</span><strong>62 din/kom</strong></li>
+                        <li><span>101–200 kom</span><strong>57 din/kom</strong></li>
+                        <li><span>201+ kom</span><strong>50 din/kom</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="cenovnik-info">
+                <p>📸 Za veće dimenzije kontaktirajte nas direktno.</p>
+                <p>✨ Kvalitetna štampa vaših uspomena na vrhunskom foto papiru. Izaberite dimenziju i količinu koja vam odgovara — za veće porudžbine odobravamo popuste!</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Lokacija</h3>
+                <p>Ljubić Kej, Čačak 32000</p>
+            </div>
+            <div class="footer-section">
+                <h3>Kontakt</h3>
+                <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+            </div>
+            <div class="footer-section">
+                <h3>Pratite nas</h3>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook"></a>
+                    <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail"></a>
+                    <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram"></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+        </div>
+    </footer>
+
+    <script src="scripts/main.js"></script>
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script>
+    AOS.init({
+        duration: 800,  // dužina animacije u ms (možeš prilagoditi)
+        once: true      // animacije se odigraju samo jednom dok se scrolluje
+    });
+
+
+        function toggleMenu() {
+            const menu = document.getElementById("mobileMenu");
+            menu.classList.toggle("open");
+        }
+        function prikaziKategoriju(id) {
+            document.getElementById('kategorije-blokovi').style.display = 'none';
+            document.querySelectorAll('.kategorija').forEach(k => k.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            AOS.refresh();
+        }
+        function vratiNaKategorije() {
+            document.getElementById('kategorije-blokovi').style.display = 'flex';
+            document.querySelectorAll('.kategorija').forEach(k => k.style.display = 'none');
+        }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Skloni preloader nakon što se stranica učita
+        setTimeout(function() {
+            document.getElementById('preloader').classList.add('fade-out');
+        }, 3000); // Promenite vreme ove pauze prema potrebi
+    });
+    </script>
+    </body>
+    </html>

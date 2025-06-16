@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin – Upravljanje recenzijama</title>
+    <link rel="stylesheet" href="styles/admin_slider.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <audio id="zvukRecenzija" src="/sounds/ding.mp3" preload="auto"></audio>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f9;
+        }
+        h1 {
+            text-align: center;
+            margin: 120px auto 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #ff8d03;
+            color: white;
+        }
+        .slika {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        button {
+            background-color: #e53935;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        button:hover {
+            background-color: #c62828;
+        }
+        .btn-odobri {
+            background-color: #28a745;
+        }
+        .btn-odobri:hover {
+            background-color: #218838;
+        }
+        .status-tag {
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        .status-tag.odobrena {
+            background: #d4edda;
+            color: #2e7d32;
+        }
+        .status-tag.odbijena {
+            background: #f8d7da;
+            color: #b71c1c;
+        }
+        .status-tag.na-cek {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <img id="logoslika" src="logo/logo.png" class="logo" alt="Logo">
+    <nav>
+        <span id="loggedInAdmin" style="color: white; font-weight: bold;"></span>
+        <button onclick="window.location.href='/login'" style="margin-left: 20px; background: #FFA500; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer;">Nazad</button>
+    </nav>
+</header>
+
+<h1>Admin panel – Recenzije</h1>
+<table id="reviewsTable">
+    <thead>
+    <tr>
+        <th>Slika</th>
+        <th>Ime</th>
+        <th>Ocena</th>
+        <th>Tekst</th>
+        <th>Datum</th>
+        <th>Status / Akcija</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    const socket = io();
+
+    socket.on('nova_recenzija', (data) => {
+        document.getElementById('zvukRecenzija').play();
+        const notif = document.createElement('div');
+        notif.innerHTML = `
+        <div style="position:fixed;top:20px;right:20px;background:#007bff;color:white;padding:15px 20px;border-radius:10px;z-index:9999;">
+            ✨ Nova recenzija od <strong>${data.ime}</strong><br>Ocena: ${data.ocena}⭐
+        </div>`;
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 6000);
+    });
+
+
+    async function deleteReview(id) {
+        if (!confirm('Da li ste sigurni da želite da obrišete ovu recenziju?')) return;
+        const res = await fetch(`/api/reviews/${id}`, { method: 'DELETE' });
+        if (res.ok) loadReviews();
+        else alert("Greška pri brisanju");
+    }
+
+    async function odobriRecenziju(id) {
+        await fetch(`/api/reviews/odobri/${id}`, { method: 'PUT' });
+        loadReviews();
+    }
+
+    async function odbijRecenziju(id) {
+        await fetch(`/api/reviews/odbij/${id}`, { method: 'PUT' });
+        loadReviews();
+    }
+
+    async function loadReviews() {
+        const res = await fetch('/api/reviews/admin');
+        const data = await res.json();
+        const tbody = document.querySelector('#reviewsTable tbody');
+        tbody.innerHTML = '';
+        data.forEach(review => {
+            const tr = document.createElement('tr');
+
+            const statusBadge = review.status === 'na čekanju'
+                ? `<span class="status-tag na-cek">${review.status}</span><br>
+                   <button class="btn-odobri" onclick="odobriRecenziju(${review.id})">✅</button>
+                   <button onclick="odbijRecenziju(${review.id})">❌</button>`
+                : `<span class="status-tag ${review.status === 'odobrena' ? 'odobrena' : 'odbijena'}">${review.status}</span>`;
+
+            tr.innerHTML = `
+                <td><img class="slika" src="${review.image || ''}" alt="Slika" /></td>
+                <td>${review.name}</td>
+                <td>${review.rating} ⭐</td>
+                <td>${review.text}</td>
+                <td>${new Date(review.date).toLocaleString('sr-RS')}</td>
+                <td>
+                    ${statusBadge}
+                    <br><button onclick="deleteReview(${review.id})">🗑 Obriši</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    window.onload = () => loadReviews();
+</script>
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>Lokacija</h3>
+            <p>Ljubić Kej, Čačak 32000</p>
+        </div>
+        <div class="footer-section">
+            <h3>Kontakt</h3>
+            <p>E-mail: fotostudiobogicevic@gmail.com<br>Telefon: 066 350 355</p>
+        </div>
+        <div class="footer-section">
+            <h3>Pratite nas</h3>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/profile.php?id=61552051145052" target="_blank"><img src="logo/facebook.png" alt="Facebook" ></a>
+                <a href="#"><img src="logo/email.png" target="_blank" alt="E-mail" ></a>
+                <a href="https://www.instagram.com/ognjen.bogicevic.bogi/" target="_blank"><img src="logo/instagram.png" alt="Instagram" ></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <p>&copy; 2024 Foto Studio Bogićević. Sva prava zadržana.</p>
+    </div>
+
+</footer>
+</body>
+</html>
