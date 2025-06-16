@@ -1953,9 +1953,6 @@
     });
 
 
-    const fs = require('fs');
-    const path = require('path');
-
     app.delete('/api/admin/uplate/:id', (req, res) => {
         const id = req.params.id;
 
