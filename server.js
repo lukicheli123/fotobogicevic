@@ -146,11 +146,12 @@
 
     function connectToDatabase() {
         db = mysql.createConnection({
-            host: 'sql.freedb.tech',
-            user: 'freedb_luka1',
-            password: '9DjhFYY#Tq$hBd9',
-            database: 'freedb_bazapodatak'
+            host: 'sql7.freesqldatabase.com',
+            user: 'sql7785062',
+            password: '7JsdrXapWi',
+            database: 'sql7785062'
         });
+
 
         db.connect((err) => {
             if (err) {
